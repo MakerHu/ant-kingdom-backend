@@ -1,5 +1,6 @@
-package com.springboot.springbootlogindemo.service;
+package com.springboot.springbootlogindemo.service.serviceImpl;
 
+import com.springboot.springbootlogindemo.dto.RoomInfo;
 import com.springboot.springbootlogindemo.dto.WebSocketClient;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -22,6 +23,8 @@ public class WebSocketService {
     private static int onlineCount = 0;
     //concurrent包的线程安全Set，用来存放每个客户端对应的WebSocketServer对象。
     private static ConcurrentHashMap<String, WebSocketClient> webSocketMap = new ConcurrentHashMap<>();
+
+    private static ConcurrentHashMap<String, RoomInfo> roomMap = new ConcurrentHashMap<>();
 
 
     /**与某个客户端的连接会话，需要通过它来给客户端发送数据*/

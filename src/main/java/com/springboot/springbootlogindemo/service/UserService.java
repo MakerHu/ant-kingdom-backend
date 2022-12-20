@@ -17,4 +17,6 @@ public interface UserService {
      * @return
      */
     User registService(User user);
+
+    User findById(int uid);
 }
