@@ -1,6 +1,6 @@
 package com.springboot.springbootlogindemo.service;
 
-import com.springboot.springbootlogindemo.domain.WebSocketClient;
+import com.springboot.springbootlogindemo.dto.WebSocketClient;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
