@@ -58,12 +58,12 @@ public class WebSocketService {
     @OnClose
     public void onClose() {
         if(webSocketMap.containsKey(userName)){
-            webSocketMap.remove(userName);
             if(webSocketMap.size()>0)
             {
                 //从set中删除
                 subOnlineCount();
             }
+            webSocketMap.remove(userName);
         }
         log.info("----------------------------------------------------------------------------");
         log.info(userName+"用户退出,当前在线人数为:" + getOnlineCount());
