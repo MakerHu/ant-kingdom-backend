@@ -8,6 +8,8 @@ public class WebSocketClient {
     //连接的uri
     private String uri;
 
+    private String roomId;
+
     public Session getSession() {
         return session;
     }
