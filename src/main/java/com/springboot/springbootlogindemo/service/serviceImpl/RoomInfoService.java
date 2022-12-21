@@ -9,6 +9,7 @@ import com.springboot.springbootlogindemo.repository.RoomDao;
 import com.springboot.springbootlogindemo.service.CardRelationService;
 import com.springboot.springbootlogindemo.service.CardService;
 import com.springboot.springbootlogindemo.service.RoomService;
+import com.springboot.springbootlogindemo.utils.Result;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlExpression;
@@ -112,11 +113,15 @@ public class RoomInfoService {
         return roomInfo;
     }
     //抽一张牌
-    public RoomInfo brand(RoomInfo roomInfo,int uid){
+    public Result<RoomInfo> brand(RoomInfo roomInfo, int uid){
         List<Player> players = new ArrayList<>();
         for(Player player:roomInfo.getPlayers()){
             if(player.getUser().getUid() == uid){
-                if(player.getRice() >= 5){
+                if(player.getRice() < 5){
+                    return Result.error("101","食物不够获得新的蚂蚁");
+                }else if(player.getIdleCardList().size() == 8){
+                    return Result.error("101","蚂蚁上限不能超过8只");
+                } else if(player.getRice() >= 5 && player.getIdleCardList().size()<8){
                     Stack<Card> cardStack = roomInfo.getCardStack();
                     Card card = cardStack.pop();
                     roomInfo.setCardStack(cardStack);
@@ -127,14 +132,13 @@ public class RoomInfoService {
                     player.setRice(player.getRice()-5);
                     players.add(player);
 //                    TODO 加是否破产
-                }else{
-                    players.add(player);
                 }
             }else{
                 players.add(player);
             }
         }
-        return roomInfo;
+        roomInfo.setPlayers(players);
+        return Result.success(roomInfo,"success");
     }
     //出两张明牌
     public RoomInfo showTwoCards(RoomInfo roomInfo,int uid,List<Integer> seq ){
@@ -308,5 +312,8 @@ public class RoomInfoService {
     }
 
     //开始新的对局
+//    public Result<RoomInfo> startNew(RoomInfo roomInfo){
+//
+//    }
 
 }

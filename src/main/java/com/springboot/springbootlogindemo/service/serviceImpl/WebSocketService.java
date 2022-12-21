@@ -212,7 +212,18 @@ public class WebSocketService {
             sendMessage(roomInfo,"REFRESH");
         }
     }
-
+    //抽牌
+    public void brand(){
+        RoomInfo roomInfo = roomMap.get(roomId);
+        Result result = roomInfoService.brand(roomInfo,Integer.parseInt(uid));
+        if(result.getMsg().equalsIgnoreCase("success")){
+            roomMap.put(roomId, (RoomInfo) result.getData());
+            sendMessage(roomInfo,"REFRESH");
+        }else{
+            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(result.getMsg(),"ALERT"));
+            sendMessage(Integer.parseInt(uid),jsonObject.toString());
+        }
+    }
 
     /**
      * 收到客户端消息后调用的方法
@@ -239,6 +250,9 @@ public class WebSocketService {
                 break;
             case "END":
                 end();
+                break;
+            case "BRAND":
+                brand();
                 break;
         }
         if(StringUtils.isNotBlank(message)){
