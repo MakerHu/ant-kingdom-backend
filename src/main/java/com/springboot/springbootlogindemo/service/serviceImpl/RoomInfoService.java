@@ -60,9 +60,9 @@ public class RoomInfoService {
         return roomInfo;
     }
     //判断游戏是否要开始
-//    public Boolean isAllStart(RoomInfo roomInfo){
-//
-//    }
+    public Boolean isAllStart(RoomInfo roomInfo){
+        return false;
+    }
 
     //游戏开始，发牌，随机选择环境牌，初始化玩家信息
     public RoomInfo deal(RoomInfo roomInfo,String roomId){

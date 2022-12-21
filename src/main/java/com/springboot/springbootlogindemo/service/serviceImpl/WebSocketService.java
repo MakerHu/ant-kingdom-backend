@@ -107,6 +107,7 @@ public class WebSocketService {
         RoomInfo roomInfo = new RoomInfo();
         if(!roomMap.containsKey(roomId)){
             Player player = new Player();
+            System.out.println("uid:"+uid);
             player.setUser(userDao.findByUid(Integer.parseInt(uid)));
             player.setState("UNREADY");
             List<Player> players = new ArrayList<>();
@@ -122,6 +123,7 @@ public class WebSocketService {
         for(Player player:roomInfo.getPlayers()){
             JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,"REFRESH"));
             sendMessage(player.getUser().getUid(),jsonObject.toString());
+            System.out.println("jsonObject.toString():"+jsonObject.toString());
         }
     }
 
