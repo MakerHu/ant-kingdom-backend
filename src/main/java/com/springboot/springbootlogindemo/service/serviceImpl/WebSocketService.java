@@ -150,6 +150,7 @@ public class WebSocketService {
         for(Player player:roomInfo.getPlayers()){
             JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,"REFRESH"));
             sendMessage(player.getUser().getUid(),jsonObject.toString());
+            System.out.println("jsonObject.toString()"+jsonObject.toString());
         }
     }
     //玩家准备
@@ -158,6 +159,7 @@ public class WebSocketService {
         roomMap.put(roomId,roomInfo);
         sendMessage(roomInfo);
         if(roomInfoService.isAllReady(roomInfo)){
+            roomInfo = roomInfoService.init(roomInfo);
             roomInfo = roomInfoService.deal(roomInfo,roomId);
             roomMap.put(roomId,roomInfo);
             sendMessage(roomInfo);

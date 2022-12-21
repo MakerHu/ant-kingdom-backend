@@ -23,8 +23,7 @@ public class RoomInfoService {
     private CardService cardService;
 
     //创建房间时，初始化房间信息
-    public RoomInfo init(){
-        RoomInfo roomInfo = new RoomInfo();
+    public RoomInfo init(RoomInfo roomInfo){
         List<Card> cardList = cardService.getCardList();
         List<Card> allCardList = new ArrayList<>();
         for(Card card:cardList){

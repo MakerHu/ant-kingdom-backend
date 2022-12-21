@@ -26,8 +26,8 @@ public class WebSocketController {
         WebSocketService.sendMessage(1,"公众号:霸道的程序猿");
     }
 
-    @PostMapping("/init")
-    public Result<RoomInfo> init(){
-        return Result.success(roomInfoService.init());
-    }
+//    @PostMapping("/init")
+//    public Result<RoomInfo> init(){
+//        return Result.success(roomInfoService.init());
+//    }
 }
