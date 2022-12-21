@@ -233,7 +233,7 @@ public class WebSocketService {
         if(result.getMsg().equalsIgnoreCase("success")){
             roomMap.put(roomId, (RoomInfo) result.getData());
         }else{
-            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(result.getMsg(),"ALERT"));
+            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(result.getMsg(),"CONTINUE_ALERT"));
             sendMessage(Integer.parseInt(uid),jsonObject.toString());
         }
 

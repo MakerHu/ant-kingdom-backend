@@ -130,12 +130,11 @@ public class RoomInfoService {
                     idleCardList.add(card);
                     player.setIdleCardList(idleCardList);
                     player.setRice(player.getRice()-5);
-                    players.add(player);
+
 //                    TODO 加是否破产
                 }
-            }else{
-                players.add(player);
             }
+            players.add(player);
         }
         roomInfo.setPlayers(players);
         return Result.success(roomInfo,"success");
