@@ -15,7 +15,7 @@ public class Player {
     private int changeRice;
     private int score;
     private int finalValue;
-    private boolean isBankruptcy; //是否破产
+    private boolean bankruptcy; //是否破产
 
     public User getUser() {
         return user;
@@ -66,11 +66,11 @@ public class Player {
     }
 
     public boolean isBankruptcy() {
-        return isBankruptcy;
+        return bankruptcy;
     }
 
     public void setBankruptcy(boolean bankruptcy) {
-        isBankruptcy = bankruptcy;
+        this.bankruptcy = bankruptcy;
     }
 
     public String getState() {
