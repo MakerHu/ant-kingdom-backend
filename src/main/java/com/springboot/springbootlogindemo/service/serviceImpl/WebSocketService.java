@@ -174,7 +174,13 @@ public class WebSocketService {
         RoomInfo roomInfo = roomMap.get(roomId);
         roomInfo = roomInfoService.showTwoCards(roomInfo,Integer.parseInt(uid),seq);
         roomMap.put(roomId,roomInfo);
-        sendMessage(roomInfo,"REFRESH");
+        if(roomInfoService.isEveryone(roomInfo,"show")){
+            sendMessage(roomInfo,"SHOW_OUT");
+        }else{
+            sendMessage(roomInfo,"REFRESH");
+        }
+
+
     }
     //亮两张牌
     public void hideTwoCards(String[] instructions){
@@ -184,7 +190,11 @@ public class WebSocketService {
         RoomInfo roomInfo = roomMap.get(roomId);
         roomInfo = roomInfoService.hideTwoCards(roomInfo,Integer.parseInt(uid),seq);
         roomMap.put(roomId,roomInfo);
-        sendMessage(roomInfo,"REFRESH");
+        if(roomInfoService.isEveryone(roomInfo,"hide")){
+            sendMessage(roomInfo,"HIDE_OUT");
+        }else{
+            sendMessage(roomInfo,"REFRESH");
+        }
     }
 
     /**

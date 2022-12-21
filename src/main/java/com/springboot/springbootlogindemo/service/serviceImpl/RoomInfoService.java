@@ -97,6 +97,8 @@ public class RoomInfoService {
             }
             player.setIdleCardList(cardList);
             player.setRice(100);
+            player.setShowCardList(new ArrayList<>());
+            player.setHideCardList(new ArrayList<>());
         }
         roomInfo.setCardStack(cardStack);
         return roomInfo;
@@ -168,6 +170,22 @@ public class RoomInfoService {
         }
         roomInfo.setPlayers(players);
         return roomInfo;
+    }
+
+    //判断是否所有人出牌
+    public Boolean isEveryone(RoomInfo roomInfo,String type){
+        for(Player player:roomInfo.getPlayers()){
+            if(type.equalsIgnoreCase("show")){
+                if(player.getShowCardList().size() == 0){
+                    return false;
+                }
+            }else if(type.equalsIgnoreCase("hide")){
+                if(player.getHideCardList().size() == 0){
+                    return false;
+                }
+            }
+        }
+        return true;
     }
     //换环境牌
 //    public RoomInfo exchangeEnvironment(RoomInfo roomInfo,int uid,int rice){
