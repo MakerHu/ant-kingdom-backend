@@ -77,7 +77,8 @@ public class WebSocketService {
         log.info("----------------------------------------------------------------------------");
         log.info("用户连接:"+uid+",当前在线人数为:" + getOnlineCount());
         try {
-            sendMessage("来自后台的反馈：连接成功");
+            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success("来自后台的反馈：连接成功","MSG"));
+            sendMessage(jsonObject.toString());
         } catch (IOException e) {
             log.error("用户:"+uid+",网络异常!!!!!!");
         }
