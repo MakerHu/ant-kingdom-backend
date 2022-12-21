@@ -1,12 +1,17 @@
 package com.springboot.springbootlogindemo.service.serviceImpl;
 
 import com.springboot.springbootlogindemo.domain.Card;
+import com.springboot.springbootlogindemo.domain.CardRelation;
 import com.springboot.springbootlogindemo.domain.Room;
 import com.springboot.springbootlogindemo.dto.Player;
 import com.springboot.springbootlogindemo.dto.RoomInfo;
 import com.springboot.springbootlogindemo.repository.RoomDao;
+import com.springboot.springbootlogindemo.service.CardRelationService;
 import com.springboot.springbootlogindemo.service.CardService;
 import com.springboot.springbootlogindemo.service.RoomService;
+import org.apache.commons.jexl3.JexlBuilder;
+import org.apache.commons.jexl3.JexlEngine;
+import org.apache.commons.jexl3.JexlExpression;
 import org.apache.tomcat.websocket.server.WsHttpUpgradeHandler;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +27,9 @@ public class RoomInfoService {
 
     @Resource
     private CardService cardService;
+
+    @Resource
+    private CardRelationService cardRelationService;
 
     //创建房间时，初始化房间信息
     public RoomInfo init(RoomInfo roomInfo){
@@ -188,8 +196,79 @@ public class RoomInfoService {
         return true;
     }
     //换环境牌
-//    public RoomInfo exchangeEnvironment(RoomInfo roomInfo,int uid,int rice){
+//    public RoomInfo exchangeEnvironment(RoomInfo roomInfo,int uid,int rice,int seq){
 //
 //    }
+    //算所有人的分数，判断赢家
+    public RoomInfo calculateScore(RoomInfo roomInfo){
+        List<Player> players = new ArrayList<>();
+        for(Player player:roomInfo.getPlayers()){
+            int score = 0;
+            List<Card> cards = new ArrayList<>();
+            for(Card card:player.getShowCardList()){
+                cards.add(card);
+            }
+            for(Card card:player.getHideCardList()){
+                cards.add(card);
+            }
+            for(int i = 0;i < cards.size();i ++){
+                Card card1 = cards.get(i);
+                String formula = card1.getInitValue()+"";
+                for(int j = 0; j < cards.size();j ++){
+                    if(j != i){
+                        Card card2 = cards.get(j);
+                        CardRelation cardRelation = cardRelationService.findByCard1AndCard2(card1.getId(),card2.getId());
+                        if(cardRelation != null){
+                            formula+=cardRelation.getValueImpact();
+                        }
+                    }
+                }
+                Card card2 = roomInfo.getEnvironmentCard();
+                CardRelation cardRelation = cardRelationService.findByCard1AndCard2(card1.getId(),card2.getId());
+                if(cardRelation != null){
+                    formula+=cardRelation.getValueImpact();
+                }
+                JexlEngine jexlEngine = new JexlBuilder().create();
+                JexlExpression jexlExpression = jexlEngine.createExpression(formula);
+                Object evaluate = jexlExpression.evaluate(null);
+                score += (int)evaluate;
+            }
+            player.setScore(score);
+            players.add(player);
+        }
+        roomInfo.setPlayers(players);
+        Player winner = players.get(0);
+        for(Player player:players){
+            if(player.getScore()>winner.getScore()){
+                winner = player;
+            }
+        }
+        roomInfo.setWinner(winner);
+        return award(roomInfo);
+    }
+
+    //给赢家奖励
+    public RoomInfo award(RoomInfo roomInfo){
+        List<Player> players = new ArrayList<>();
+        int rice = 0;
+        for(Player player:roomInfo.getPlayers()){
+            if(player.getUser().getUid() != roomInfo.getWinner().getUser().getUid()){
+                for(Card card:player.getShowCardList()){
+                    rice += card.getRice();
+                }
+                for(Card card:player.getHideCardList()){
+                    rice += card.getRice();
+                }
+            }
+        }
+        for(Player player:roomInfo.getPlayers()){
+            if(player.getUser().getUid() == roomInfo.getWinner().getUser().getUid()){
+                player.setRice(player.getRice()+rice);
+            }
+            players.add(player);
+        }
+        roomInfo.setPlayers(players);
+        return roomInfo;
+    }
 
 }

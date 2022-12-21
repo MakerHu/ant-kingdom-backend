@@ -191,6 +191,8 @@ public class WebSocketService {
         roomInfo = roomInfoService.hideTwoCards(roomInfo,Integer.parseInt(uid),seq);
         roomMap.put(roomId,roomInfo);
         if(roomInfoService.isEveryone(roomInfo,"hide")){
+            roomInfoService.calculateScore(roomInfo);
+            roomMap.put(roomId,roomInfo);
             sendMessage(roomInfo,"HIDE_OUT");
         }else{
             sendMessage(roomInfo,"REFRESH");
