@@ -108,7 +108,7 @@ public class WebSocketService {
 //        System.out.println("webSocketMap"+webSocketMap.toString());
 //        System.out.println("roomMap"+roomMap.toString());
         for(Player player:roomInfo.getPlayers()){
-            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,"refresh"));
+            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,"REFRESH"));
             sendMessage(player.getUser().getUid(),jsonObject.toString());
         }
     }
@@ -118,7 +118,7 @@ public class WebSocketService {
         RoomInfo roomInfo = roomInfoService.ready(roomMap.get(roomId),Integer.parseInt(uid));
         roomMap.put(roomId,roomInfo);
         for(Player player:roomInfo.getPlayers()){
-            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,"refresh"));
+            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,"REFRESH"));
             sendMessage(player.getUser().getUid(),jsonObject.toString());
         }
     }
