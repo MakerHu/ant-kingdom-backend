@@ -12,6 +12,7 @@ public class Player {
     private List<Card> showCardList; //亮出的牌
     private List<Card> hideCardList; //翻面的牌
     private int rice;
+    private int score;
     private int finalValue;
     private boolean isBankruptcy; //是否破产
 
@@ -77,5 +78,13 @@ public class Player {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
     }
 }

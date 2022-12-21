@@ -7,6 +7,7 @@ import com.springboot.springbootlogindemo.dto.RoomInfo;
 import com.springboot.springbootlogindemo.repository.RoomDao;
 import com.springboot.springbootlogindemo.service.CardService;
 import com.springboot.springbootlogindemo.service.RoomService;
+import org.apache.tomcat.websocket.server.WsHttpUpgradeHandler;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -125,9 +126,52 @@ public class RoomInfoService {
         }
         return roomInfo;
     }
-    //TODO 出两张明牌
+    //出两张明牌
     public RoomInfo showTwoCards(RoomInfo roomInfo,int uid,List<Integer> seq ){
+        List<Player> players = new ArrayList<>();
+        for(Player player:roomInfo.getPlayers()){
+            if(player.getUser().getUid() == uid){
+                List<Card> idleCardList = player.getIdleCardList();
+                List<Card> showCardList = player.getShowCardList();
+                Card card1 = idleCardList.get(seq.get(0));
+                Card card2 = idleCardList.get(seq.get(1));
+                idleCardList.remove(card1);
+                idleCardList.remove(card2);
+                showCardList.add(card1);
+                showCardList.add(card2);
+                player.setIdleCardList(idleCardList);
+                player.setShowCardList(showCardList);
+            }
+            players.add(player);
+        }
+        roomInfo.setPlayers(players);
         return roomInfo;
     }
+
+    //出两张明牌
+    public RoomInfo hideTwoCards(RoomInfo roomInfo,int uid,List<Integer> seq ){
+        List<Player> players = new ArrayList<>();
+        for(Player player:roomInfo.getPlayers()){
+            if(player.getUser().getUid() == uid){
+                List<Card> idleCardList = player.getIdleCardList();
+                List<Card> hideCardList = player.getHideCardList();
+                Card card1 = idleCardList.get(seq.get(0));
+                Card card2 = idleCardList.get(seq.get(1));
+                idleCardList.remove(card1);
+                idleCardList.remove(card2);
+                hideCardList.add(card1);
+                hideCardList.add(card2);
+                player.setIdleCardList(idleCardList);
+                player.setShowCardList(hideCardList);
+            }
+            players.add(player);
+        }
+        roomInfo.setPlayers(players);
+        return roomInfo;
+    }
+    //换环境牌
+//    public RoomInfo exchangeEnvironment(RoomInfo roomInfo,int uid,int rice){
+//
+//    }
 
 }

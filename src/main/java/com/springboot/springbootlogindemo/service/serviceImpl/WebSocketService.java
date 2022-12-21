@@ -166,6 +166,26 @@ public class WebSocketService {
             System.out.println("游戏开始！");
         }
     }
+    //亮两张牌
+    public void showTwoCards(String[] instructions){
+        List<Integer> seq = new ArrayList<>();
+        seq.add(Integer.parseInt(instructions[1]));
+        seq.add(Integer.parseInt(instructions[2]));
+        RoomInfo roomInfo = roomMap.get(roomId);
+        roomInfo = roomInfoService.showTwoCards(roomInfo,Integer.parseInt(uid),seq);
+        roomMap.put(roomId,roomInfo);
+        sendMessage(roomInfo);
+    }
+    //亮两张牌
+    public void hideTwoCards(String[] instructions){
+        List<Integer> seq = new ArrayList<>();
+        seq.add(Integer.parseInt(instructions[1]));
+        seq.add(Integer.parseInt(instructions[2]));
+        RoomInfo roomInfo = roomMap.get(roomId);
+        roomInfo = roomInfoService.hideTwoCards(roomInfo,Integer.parseInt(uid),seq);
+        roomMap.put(roomId,roomInfo);
+        sendMessage(roomInfo);
+    }
 
     /**
      * 收到客户端消息后调用的方法
@@ -178,11 +198,17 @@ public class WebSocketService {
         //消息保存到数据库、redis
         String[] instructions = message.split("#");
         switch(instructions[0]){
-            case "ENTER":
+            case "ENTER":  //玩家进入
                 enter(instructions[1]);
                 break;
-            case "READY":
+            case "READY":  //玩家准备
                 ready();
+                break;
+            case "SHOW":   //玩家亮两张牌
+                showTwoCards(instructions);
+                break;
+            case "HIDE":  //玩家隐藏两张牌
+                hideTwoCards(instructions);
                 break;
         }
         if(StringUtils.isNotBlank(message)){
