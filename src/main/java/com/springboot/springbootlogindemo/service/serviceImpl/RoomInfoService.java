@@ -132,7 +132,7 @@ public class RoomInfoService {
         for(Player player:roomInfo.getPlayers()){
             if(player.getUser().getUid() == uid){
                 List<Card> idleCardList = player.getIdleCardList();
-                List<Card> showCardList = player.getShowCardList();
+                List<Card> showCardList = new ArrayList<>();
                 Card card1 = idleCardList.get(seq.get(0));
                 Card card2 = idleCardList.get(seq.get(1));
                 idleCardList.remove(card1);
@@ -154,7 +154,7 @@ public class RoomInfoService {
         for(Player player:roomInfo.getPlayers()){
             if(player.getUser().getUid() == uid){
                 List<Card> idleCardList = player.getIdleCardList();
-                List<Card> hideCardList = player.getHideCardList();
+                List<Card> hideCardList = new ArrayList<>();
                 Card card1 = idleCardList.get(seq.get(0));
                 Card card2 = idleCardList.get(seq.get(1));
                 idleCardList.remove(card1);
