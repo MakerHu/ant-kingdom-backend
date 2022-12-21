@@ -205,7 +205,7 @@ public class WebSocketService {
         roomMap.put(roomId,roomInfo);
         if(roomInfoService.isEveryone(roomInfo,"hide")){
             roomInfo = roomInfoService.calculateScore(roomInfo);
-            roomInfo = roomInfoService.award(roomInfo);
+//            roomInfo = roomInfoService.award(roomInfo);
             roomMap.put(roomId,roomInfo);
             sendMessage(roomInfo,"HIDE_OUT");
         }else{
