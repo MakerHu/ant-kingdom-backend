@@ -104,13 +104,23 @@ public class WebSocketService {
     //玩家进入游戏
     public void enter(String roomId){
         this.roomId = roomId;
-        RoomInfo roomInfo = new RoomInfo();
         if(!roomMap.containsKey(roomId)){
+            RoomInfo roomInfo = new RoomInfo();
             Player player = new Player();
-            System.out.println("uid:"+uid);
+//            System.out.println("uid:"+uid);
             player.setUser(userDao.findByUid(Integer.parseInt(uid)));
             player.setState("UNREADY");
             List<Player> players = new ArrayList<>();
+            players.add(player);
+            roomInfo.setPlayers(players);
+            roomMap.put(roomId,roomInfo);
+        }else{
+            RoomInfo roomInfo = roomMap.get(roomId);
+            Player player = new Player();
+//            System.out.println("uid:"+uid);
+            player.setUser(userDao.findByUid(Integer.parseInt(uid)));
+            player.setState("UNREADY");
+            List<Player> players = roomInfo.getPlayers();
             players.add(player);
             roomInfo.setPlayers(players);
             roomMap.put(roomId,roomInfo);
@@ -120,6 +130,7 @@ public class WebSocketService {
         webSocketMap.put(uid,webSocketClient);
 //        System.out.println("webSocketMap"+webSocketMap.toString());
 //        System.out.println("roomMap"+roomMap.toString());
+        RoomInfo roomInfo = roomMap.get(roomId);
         for(Player player:roomInfo.getPlayers()){
             JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,"REFRESH"));
             sendMessage(player.getUser().getUid(),jsonObject.toString());

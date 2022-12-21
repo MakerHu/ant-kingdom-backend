@@ -61,6 +61,7 @@ public class RoomInfoService {
     }
     //判断游戏是否要开始
     public Boolean isAllStart(RoomInfo roomInfo){
+
         return false;
     }
 
