@@ -39,9 +39,9 @@ public class RoomInfoService {
         for(Card card:cardList){
             int num = 0;
             if(card.getType() == 0){
-                num = 10;
+                num = 20;
             }else{
-                num = 3;
+                num = 5;
             }
             for(int i = 0;i < num;i ++){
                 allCardList.add(card);
