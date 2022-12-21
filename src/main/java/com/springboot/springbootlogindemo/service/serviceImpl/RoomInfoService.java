@@ -237,38 +237,70 @@ public class RoomInfoService {
             players.add(player);
         }
         roomInfo.setPlayers(players);
-        Player winner = players.get(0);
-        for(Player player:players){
+
+        return roomInfo;
+    }
+
+    //给赢家奖励
+    public RoomInfo award(RoomInfo roomInfo){
+        Player winner = roomInfo.getPlayers().get(0);
+        for(Player player:roomInfo.getPlayers()){
             if(player.getScore()>winner.getScore()){
                 winner = player;
             }
         }
         roomInfo.setWinner(winner);
-        return award(roomInfo);
-    }
-
-    //给赢家奖励
-    public RoomInfo award(RoomInfo roomInfo){
         List<Player> players = new ArrayList<>();
-        int rice = 0;
+        int awardRice = 0;
         for(Player player:roomInfo.getPlayers()){
             if(player.getUser().getUid() != roomInfo.getWinner().getUser().getUid()){
                 for(Card card:player.getShowCardList()){
-                    rice += card.getRice();
+                    awardRice += card.getRice();
                 }
                 for(Card card:player.getHideCardList()){
-                    rice += card.getRice();
+                    awardRice += card.getRice();
                 }
             }
         }
         for(Player player:roomInfo.getPlayers()){
             if(player.getUser().getUid() == roomInfo.getWinner().getUser().getUid()){
-                player.setRice(player.getRice()+rice);
+                player.setRice(player.getRice()+awardRice);
+            }else {
+                int deficitRice = 0;
+                for(Card card:player.getShowCardList()){
+                    deficitRice += card.getRice();
+                }
+                for(Card card:player.getHideCardList()){
+                    deficitRice += card.getRice();
+                }
+                player.setRice(player.getRice()-deficitRice);
             }
             players.add(player);
         }
         roomInfo.setPlayers(players);
         return roomInfo;
+    }
+
+    //玩家结束本回合
+    public RoomInfo end(RoomInfo roomInfo,int uid){
+        List<Player> players = new ArrayList<>();
+        for(Player player:roomInfo.getPlayers()){
+            if(player.getUser().getUid() == uid){
+                player.setState("end");
+            }
+            players.add(player);
+        }
+        roomInfo.setPlayers(players);
+        return roomInfo;
+    }
+    //判断是否所有玩家选择结束本回合
+    public Boolean isEveryoneEnd(RoomInfo roomInfo){
+        for(Player player:roomInfo.getPlayers()){
+            if(!player.getState().equalsIgnoreCase("end")){
+                return false;
+            }
+        }
+        return true;
     }
 
 }

@@ -166,6 +166,17 @@ public class WebSocketService {
             System.out.println("游戏开始！");
         }
     }
+    //玩家结束本回合
+    public void end(){
+        RoomInfo roomInfo = roomInfoService.end(roomMap.get(roomId),Integer.parseInt(uid));
+        roomMap.put(roomId,roomInfo);
+        if(roomInfoService.isEveryoneEnd(roomInfo)){
+            roomInfo = roomInfoService.calculateScore(roomInfo);
+            roomInfo = roomInfoService.award(roomInfo);
+            roomMap.put(roomId,roomInfo);
+            sendMessage(roomInfo,"END_OUT");
+        }
+    }
     //亮两张牌
     public void showTwoCards(String[] instructions){
         List<Integer> seq = new ArrayList<>();
@@ -175,6 +186,8 @@ public class WebSocketService {
         roomInfo = roomInfoService.showTwoCards(roomInfo,Integer.parseInt(uid),seq);
         roomMap.put(roomId,roomInfo);
         if(roomInfoService.isEveryone(roomInfo,"show")){
+            roomInfo = roomInfoService.calculateScore(roomInfo);
+            roomMap.put(roomId,roomInfo);
             sendMessage(roomInfo,"SHOW_OUT");
         }else{
             sendMessage(roomInfo,"REFRESH");
@@ -191,13 +204,15 @@ public class WebSocketService {
         roomInfo = roomInfoService.hideTwoCards(roomInfo,Integer.parseInt(uid),seq);
         roomMap.put(roomId,roomInfo);
         if(roomInfoService.isEveryone(roomInfo,"hide")){
-            roomInfoService.calculateScore(roomInfo);
+            roomInfo = roomInfoService.calculateScore(roomInfo);
+            roomInfo = roomInfoService.award(roomInfo);
             roomMap.put(roomId,roomInfo);
             sendMessage(roomInfo,"HIDE_OUT");
         }else{
             sendMessage(roomInfo,"REFRESH");
         }
     }
+
 
     /**
      * 收到客户端消息后调用的方法
@@ -221,6 +236,9 @@ public class WebSocketService {
                 break;
             case "HIDE":  //玩家隐藏两张牌
                 hideTwoCards(instructions);
+                break;
+            case "END":
+                end();
                 break;
         }
         if(StringUtils.isNotBlank(message)){
