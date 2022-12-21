@@ -97,6 +97,16 @@ public class WebSocketService {
                 subOnlineCount();
             }
             webSocketMap.remove(uid);
+            RoomInfo roomInfo = roomMap.get(roomId);
+            List<Player> players = roomInfo.getPlayers();
+            for(Player player:players){
+                if(player.getUser().getUid() == Integer.parseInt(uid)){
+                    players.remove(player);
+                    break;
+                }
+            }
+            roomInfo.setPlayers(players);
+            roomMap.put(roomId,roomInfo);
         }
         log.info("----------------------------------------------------------------------------");
         log.info(uid+"用户退出,当前在线人数为:" + getOnlineCount());
@@ -132,20 +142,26 @@ public class WebSocketService {
 //        System.out.println("webSocketMap"+webSocketMap.toString());
 //        System.out.println("roomMap"+roomMap.toString());
         RoomInfo roomInfo = roomMap.get(roomId);
+        sendMessage(roomInfo);
+    }
+
+    //给每个玩家发送牌局信息
+    public void sendMessage(RoomInfo roomInfo){
         for(Player player:roomInfo.getPlayers()){
             JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,"REFRESH"));
             sendMessage(player.getUser().getUid(),jsonObject.toString());
-            System.out.println("jsonObject.toString():"+jsonObject.toString());
         }
     }
-
     //玩家准备
     public void ready(){
         RoomInfo roomInfo = roomInfoService.ready(roomMap.get(roomId),Integer.parseInt(uid));
         roomMap.put(roomId,roomInfo);
-        for(Player player:roomInfo.getPlayers()){
-            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,"REFRESH"));
-            sendMessage(player.getUser().getUid(),jsonObject.toString());
+        sendMessage(roomInfo);
+        if(roomInfoService.isAllReady(roomInfo)){
+            roomInfo = roomInfoService.deal(roomInfo,roomId);
+            roomMap.put(roomId,roomInfo);
+            sendMessage(roomInfo);
+            System.out.println("游戏开始！");
         }
     }
 
@@ -197,9 +213,9 @@ public class WebSocketService {
      * @param uid
      * @param message
      */
-    public static void sendMessage(long uid,String message){
+    public static void sendMessage(int uid,String message){
         try {
-            WebSocketClient webSocketClient = webSocketMap.get(uid);
+            WebSocketClient webSocketClient = webSocketMap.get(String.valueOf(uid));
             if(webSocketClient!=null){
                 webSocketClient.getSession().getBasicRemote().sendText(message);
             }

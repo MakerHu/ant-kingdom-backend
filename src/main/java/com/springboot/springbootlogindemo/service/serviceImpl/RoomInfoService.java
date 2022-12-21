@@ -60,9 +60,18 @@ public class RoomInfoService {
         return roomInfo;
     }
     //判断游戏是否要开始
-    public Boolean isAllStart(RoomInfo roomInfo){
+    public Boolean isAllReady(RoomInfo roomInfo){
+        if(roomInfo.getPlayers().size()>=2){
+            for(Player player:roomInfo.getPlayers()){
+                if(player.getState().equalsIgnoreCase("UNREADY")){
+                    return false;
+                }
+            }
+            return true;
+        }else{
+            return false;
+        }
 
-        return false;
     }
 
     //游戏开始，发牌，随机选择环境牌，初始化玩家信息
