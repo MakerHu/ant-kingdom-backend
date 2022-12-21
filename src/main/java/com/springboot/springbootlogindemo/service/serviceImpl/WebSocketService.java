@@ -178,6 +178,7 @@ public class WebSocketService {
             Result result = roomInfoService.isBankruptcy(roomInfo);
             if(result.getMsg().equalsIgnoreCase("success")){
                 roomMap.put(roomId, (RoomInfo) result.getData());
+                roomInfo = roomMap.get(roomId);
                 sendMessage(roomInfo,"BANKRUPTCY");
             }
             if(roomInfoService.isGameOver(roomInfo)){
@@ -227,6 +228,7 @@ public class WebSocketService {
         Result result = roomInfoService.brand(roomInfo,Integer.parseInt(uid));
         if(result.getMsg().equalsIgnoreCase("success")){
             roomMap.put(roomId, (RoomInfo) result.getData());
+            roomInfo = roomMap.get(roomId);
             sendMessage(roomInfo,"REFRESH");
         }else{
             JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(result.getMsg(),"ALERT"));
@@ -244,7 +246,7 @@ public class WebSocketService {
             JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(result.getMsg(),"CONTINUE_ALERT"));
             sendMessage(Integer.parseInt(uid),jsonObject.toString());
         }
-
+        roomInfo = roomMap.get(roomId);
         if(roomInfoService.isEveryoneContinue(roomInfo)){
             roomInfo = roomInfoService.startNew(roomInfo);
             roomMap.put(roomId,roomInfo);

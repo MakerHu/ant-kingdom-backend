@@ -131,7 +131,6 @@ public class RoomInfoService {
                     player.setIdleCardList(idleCardList);
                     player.setRice(player.getRice()-5);
 
-//                    TODO 加是否破产
                 }
             }
             players.add(player);
