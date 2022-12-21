@@ -267,6 +267,7 @@ public class RoomInfoService {
         for(Player player:roomInfo.getPlayers()){
             if(player.getUser().getUid() == winner.getUser().getUid()){
                 player.setRice(player.getRice()+awardRice);
+                player.setChangeRice(awardRice);
             }else {
                 int deficitRice = 0;
                 for(Card card:player.getShowCardList()){
@@ -276,6 +277,7 @@ public class RoomInfoService {
                     deficitRice += card.getRice();
                 }
                 player.setRice(player.getRice()-deficitRice);
+                player.setChangeRice(0-deficitRice);
             }
             players.add(player);
         }
@@ -304,5 +306,7 @@ public class RoomInfoService {
         }
         return true;
     }
+
+    //开始新的对局
 
 }
