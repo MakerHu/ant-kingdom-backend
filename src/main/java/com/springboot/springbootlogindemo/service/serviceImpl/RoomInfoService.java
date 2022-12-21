@@ -283,6 +283,7 @@ public class RoomInfoService {
                 player.setRice(player.getRice()-deficitRice);
                 player.setChangeRice(0-deficitRice);
             }
+            player.setScore(0);
             players.add(player);
         }
         roomInfo.setPlayers(players);
@@ -311,9 +312,48 @@ public class RoomInfoService {
         return true;
     }
 
-    //开始新的对局
-//    public Result<RoomInfo> startNew(RoomInfo roomInfo){
-//
-//    }
+    //玩家选择继续
+    public Result<RoomInfo> startNew(RoomInfo roomInfo,int uid){
+        List<Player> players = new ArrayList<>();
+        for(Player player:roomInfo.getPlayers()){
+            if(player.getUser().getUid() == uid){
+                if(player.getIdleCardList().size() < 4){
+                    return Result.error("101","玩家拥有的蚂蚁数量不够参与对战，请获取新的蚂蚁");
+                }else{
+                    player.setScore(0);
+                    player.setState("continue");
+                    player.setChangeRice(0);
+                    player.setShowCardList(new ArrayList<>());
+                    player.setHideCardList(new ArrayList<>());
+                }
+            }
+            players.add(player);
+        }
+        roomInfo.setPlayers(players);
+        return Result.success(roomInfo,"success");
+    }
+
+    //判断是否所有人都继续
+    public Boolean isEveryoneContinue(RoomInfo roomInfo){
+        for(Player player:roomInfo.getPlayers()){
+            if(!player.getState().equalsIgnoreCase("continue")){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    //进行下一回合对战
+    public RoomInfo startNew(RoomInfo roomInfo){
+//随机选择环境牌
+        List<Card> environmentCards = cardService.findByType(1);
+        Random r = new Random();
+        int x = r.nextInt(environmentCards.size());    //返回一个随机整数
+//        System.out.println("size："+environmentCards.size());
+//        System.out.println("随机数："+x);
+        roomInfo.setEnvironmentCard(environmentCards.get(x));
+        roomInfo.setEnvironmentRice(0);
+        return roomInfo;
+    }
 
 }

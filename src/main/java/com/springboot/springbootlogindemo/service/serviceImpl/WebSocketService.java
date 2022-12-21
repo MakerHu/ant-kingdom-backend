@@ -177,6 +177,7 @@ public class WebSocketService {
             sendMessage(roomInfo,"END_OUT");
         }
     }
+
     //亮两张牌
     public void showTwoCards(String[] instructions){
         List<Integer> seq = new ArrayList<>();
@@ -225,6 +226,24 @@ public class WebSocketService {
         }
     }
 
+    //玩家继续
+    public void playerContinue(){
+        RoomInfo roomInfo = roomMap.get(roomId);
+        Result result = roomInfoService.startNew(roomInfo,Integer.parseInt(uid));
+        if(result.getMsg().equalsIgnoreCase("success")){
+            roomMap.put(roomId, (RoomInfo) result.getData());
+        }else{
+            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(result.getMsg(),"ALERT"));
+            sendMessage(Integer.parseInt(uid),jsonObject.toString());
+        }
+
+        if(roomInfoService.isEveryoneContinue(roomInfo)){
+            roomInfo = roomInfoService.startNew(roomInfo);
+            roomMap.put(roomId,roomInfo);
+            sendMessage(roomInfo,"START");
+        }
+    }
+
     /**
      * 收到客户端消息后调用的方法
      *
@@ -253,6 +272,9 @@ public class WebSocketService {
                 break;
             case "BRAND":
                 brand();
+                break;
+            case "CONTINUE":
+                playerContinue();
                 break;
         }
         if(StringUtils.isNotBlank(message)){
