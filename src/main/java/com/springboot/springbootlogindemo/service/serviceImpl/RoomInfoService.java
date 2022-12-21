@@ -164,7 +164,7 @@ public class RoomInfoService {
                 hideCardList.add(card1);
                 hideCardList.add(card2);
                 player.setIdleCardList(idleCardList);
-                player.setShowCardList(hideCardList);
+                player.setHideCardList(hideCardList);
             }
             players.add(player);
         }
