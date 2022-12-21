@@ -52,7 +52,7 @@ public class RoomInfoService {
             shuffleCards.push(allCardList.get(i));
         }
         roomInfo.setCardStack(shuffleCards);
-
+        roomInfo.setWinners(new ArrayList<>());
         return roomInfo;
     }
     //玩家准备
@@ -249,11 +249,13 @@ public class RoomInfoService {
                 winner = player;
             }
         }
-        roomInfo.setWinner(winner);
+        List<Player> winners = roomInfo.getWinners();
+        winners.add(winner);
+        roomInfo.setWinners(winners);
         List<Player> players = new ArrayList<>();
         int awardRice = 0;
         for(Player player:roomInfo.getPlayers()){
-            if(player.getUser().getUid() != roomInfo.getWinner().getUser().getUid()){
+            if(player.getUser().getUid() != winner.getUser().getUid()){
                 for(Card card:player.getShowCardList()){
                     awardRice += card.getRice();
                 }
@@ -263,7 +265,7 @@ public class RoomInfoService {
             }
         }
         for(Player player:roomInfo.getPlayers()){
-            if(player.getUser().getUid() == roomInfo.getWinner().getUser().getUid()){
+            if(player.getUser().getUid() == winner.getUser().getUid()){
                 player.setRice(player.getRice()+awardRice);
             }else {
                 int deficitRice = 0;

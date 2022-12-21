@@ -11,7 +11,7 @@ public class RoomInfo {
     private Stack<Card> cardStack;
     private Card environmentCard; //环境牌
     private int environmentRice; //环境牌价值
-    private Player winner;
+    private List<Player> winners;
 
     public List<Player> getPlayers() {
         return players;
@@ -45,12 +45,12 @@ public class RoomInfo {
         this.environmentRice = environmentRice;
     }
 
-    public Player getWinner() {
-        return winner;
+    public List<Player> getWinners() {
+        return winners;
     }
 
-    public void setWinner(Player winner) {
-        this.winner = winner;
+    public void setWinners(List<Player> winners) {
+        this.winners = winners;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class RoomInfo {
                 ", cardStack=" + cardStack +
                 ", environmentCard=" + environmentCard +
                 ", environmentRice=" + environmentRice +
-                ", winner=" + winner +
+                ", winners=" + winners +
                 '}';
     }
 }
