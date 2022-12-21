@@ -53,13 +53,16 @@ public class RoomInfoService {
         for(Player player:roomInfo.getPlayers()){
             if(player.getUser().getUid() == uid){
                 player.setState("READY");
-
             }
             players.add(player);
         }
         roomInfo.setPlayers(players);
         return roomInfo;
     }
+    //判断游戏是否要开始
+//    public Boolean isAllStart(RoomInfo roomInfo){
+//
+//    }
 
     //游戏开始，发牌，随机选择环境牌，初始化玩家信息
     public RoomInfo deal(RoomInfo roomInfo,String roomId){

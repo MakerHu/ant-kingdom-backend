@@ -10,7 +10,9 @@ import com.springboot.springbootlogindemo.utils.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.websocket.*;
@@ -25,11 +27,20 @@ import java.util.concurrent.ConcurrentHashMap;
 @Component
 public class WebSocketService {
 
-    @Resource
-    private UserDao userDao;
+    private static UserDao userDao;
 
-    @Resource
-    private RoomInfoService roomInfoService;
+    @Autowired
+    public void setUserDao(UserDao userDao1) {
+        userDao = userDao1;
+    }
+
+
+    private static RoomInfoService roomInfoService;
+
+    @Autowired
+    public void setRoomInfoService(RoomInfoService roomInfoService1) {
+        roomInfoService = roomInfoService1;
+    }
 
 
     private static final Logger log = LoggerFactory.getLogger(WebSocketService.class);
