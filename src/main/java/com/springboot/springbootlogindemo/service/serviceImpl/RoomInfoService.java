@@ -356,20 +356,26 @@ public class RoomInfoService {
 
     //判断破产
     public Result<RoomInfo> isBankruptcy(RoomInfo roomInfo) {
-        List<Player> players = roomInfo.getPlayers();
-        for(Player player:players){
+        List<Player> players = new ArrayList<>();
+        Boolean flag = false;
+        for(Player player:roomInfo.getPlayers()){
             if(player.getRice()<0){
                 player.setBankruptcy(true);
+                flag = true;
             }
             else if(player.getRice()/5 + player.getIdleCardList().size() <4){
                 player.setBankruptcy(true);
-            }else{
-                return Result.error("101","无玩家破产");
+                flag = true;
             }
             players.add(player);
         }
         roomInfo.setPlayers(players);
-        return Result.success(roomInfo,"success");
+        if(flag){
+            return Result.success(roomInfo,"success");
+        }else{
+            return Result.error("101","无玩家破产");
+        }
+
     }
     //判断是否游戏介绍
     public Boolean isGameOver(RoomInfo roomInfo){
