@@ -142,13 +142,13 @@ public class WebSocketService {
 //        System.out.println("webSocketMap"+webSocketMap.toString());
 //        System.out.println("roomMap"+roomMap.toString());
         RoomInfo roomInfo = roomMap.get(roomId);
-        sendMessage(roomInfo);
+        sendMessage(roomInfo,"REFRESH");
     }
 
     //给每个玩家发送牌局信息
-    public void sendMessage(RoomInfo roomInfo){
+    public void sendMessage(RoomInfo roomInfo,String key){
         for(Player player:roomInfo.getPlayers()){
-            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,"REFRESH"));
+            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,key));
             sendMessage(player.getUser().getUid(),jsonObject.toString());
             System.out.println("jsonObject.toString()"+jsonObject.toString());
         }
@@ -157,12 +157,12 @@ public class WebSocketService {
     public void ready(){
         RoomInfo roomInfo = roomInfoService.ready(roomMap.get(roomId),Integer.parseInt(uid));
         roomMap.put(roomId,roomInfo);
-        sendMessage(roomInfo);
+        sendMessage(roomInfo,"REFRESH");
         if(roomInfoService.isAllReady(roomInfo)){
             roomInfo = roomInfoService.init(roomInfo);
             roomInfo = roomInfoService.deal(roomInfo,roomId);
             roomMap.put(roomId,roomInfo);
-            sendMessage(roomInfo);
+            sendMessage(roomInfo,"START");
             System.out.println("游戏开始！");
         }
     }
@@ -174,7 +174,7 @@ public class WebSocketService {
         RoomInfo roomInfo = roomMap.get(roomId);
         roomInfo = roomInfoService.showTwoCards(roomInfo,Integer.parseInt(uid),seq);
         roomMap.put(roomId,roomInfo);
-        sendMessage(roomInfo);
+        sendMessage(roomInfo,"REFRESH");
     }
     //亮两张牌
     public void hideTwoCards(String[] instructions){
@@ -184,7 +184,7 @@ public class WebSocketService {
         RoomInfo roomInfo = roomMap.get(roomId);
         roomInfo = roomInfoService.hideTwoCards(roomInfo,Integer.parseInt(uid),seq);
         roomMap.put(roomId,roomInfo);
-        sendMessage(roomInfo);
+        sendMessage(roomInfo,"REFRESH");
     }
 
     /**
