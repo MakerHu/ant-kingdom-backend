@@ -175,6 +175,14 @@ public class WebSocketService {
             roomInfo = roomInfoService.award(roomInfo);
             roomMap.put(roomId,roomInfo);
             sendMessage(roomInfo,"END_OUT");
+            Result result = roomInfoService.isBankruptcy(roomInfo);
+            if(result.getMsg().equalsIgnoreCase("success")){
+                roomMap.put(roomId, (RoomInfo) result.getData());
+                sendMessage(roomInfo,"BANKRUPTCY");
+            }
+            if(roomInfoService.isGameOver(roomInfo)){
+                sendMessage(roomInfo,"GAME_OVER");
+            }
         }
     }
 

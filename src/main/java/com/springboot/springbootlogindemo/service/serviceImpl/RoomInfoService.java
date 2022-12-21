@@ -355,4 +355,36 @@ public class RoomInfoService {
         return roomInfo;
     }
 
+    //判断破产
+    public Result<RoomInfo> isBankruptcy(RoomInfo roomInfo) {
+        List<Player> players = roomInfo.getPlayers();
+        for(Player player:players){
+            if(player.getRice()<0){
+                player.setBankruptcy(true);
+            }
+            else if(player.getRice()/5 + player.getIdleCardList().size() <4){
+                player.setBankruptcy(true);
+            }else{
+                return Result.error("101","无玩家破产");
+            }
+            players.add(player);
+        }
+        roomInfo.setPlayers(players);
+        return Result.success(roomInfo,"success");
+    }
+    //判断是否游戏介绍
+    public Boolean isGameOver(RoomInfo roomInfo){
+        int num = 0;
+        for(Player player:roomInfo.getPlayers()){
+            if(!player.isBankruptcy()){
+                num ++;
+            }
+        }
+        if(num == 1){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
 }
