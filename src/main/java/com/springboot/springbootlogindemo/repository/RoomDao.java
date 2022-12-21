@@ -8,5 +8,4 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RoomDao extends JpaRepository<Room, Long> {
     Room findById(String id);
-
 }

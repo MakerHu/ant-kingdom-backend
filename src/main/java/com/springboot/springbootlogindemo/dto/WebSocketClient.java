@@ -25,4 +25,21 @@ public class WebSocketClient {
     public void setUri(String uri) {
         this.uri = uri;
     }
+
+    public String getRoomId() {
+        return roomId;
+    }
+
+    public void setRoomId(String roomId) {
+        this.roomId = roomId;
+    }
+
+    @Override
+    public String toString() {
+        return "WebSocketClient{" +
+                "session=" + session +
+                ", uri='" + uri + '\'' +
+                ", roomId='" + roomId + '\'' +
+                '}';
+    }
 }

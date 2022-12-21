@@ -1,16 +1,23 @@
 package com.springboot.springbootlogindemo.service.serviceImpl;
 
 import com.springboot.springbootlogindemo.domain.Card;
+import com.springboot.springbootlogindemo.domain.Room;
 import com.springboot.springbootlogindemo.dto.Player;
 import com.springboot.springbootlogindemo.dto.RoomInfo;
+import com.springboot.springbootlogindemo.repository.RoomDao;
 import com.springboot.springbootlogindemo.service.CardService;
+import com.springboot.springbootlogindemo.service.RoomService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class RoomInfoService {
+
+    @Resource
+    private RoomDao roomDao;
 
     @Resource
     private CardService cardService;
@@ -40,10 +47,26 @@ public class RoomInfoService {
 
         return roomInfo;
     }
-    //TODO 玩家进入游戏
+    //玩家准备
+    public RoomInfo ready(RoomInfo roomInfo,int uid){
+        List<Player> players = new ArrayList<>();
+        for(Player player:roomInfo.getPlayers()){
+            if(player.getUser().getUid() == uid){
+                player.setState("READY");
+
+            }
+            players.add(player);
+        }
+        roomInfo.setPlayers(players);
+        return roomInfo;
+    }
 
     //游戏开始，发牌，随机选择环境牌，初始化玩家信息
-    public RoomInfo deal(RoomInfo roomInfo){
+    public RoomInfo deal(RoomInfo roomInfo,String roomId){
+        //改变房间状态
+        Room room = roomDao.findById(roomId);
+        room.setStatus(1);
+        roomDao.save(room);
         //随机选择环境牌
         List<Card> environmentCards = cardService.findByType(1);
         Random r = new Random();

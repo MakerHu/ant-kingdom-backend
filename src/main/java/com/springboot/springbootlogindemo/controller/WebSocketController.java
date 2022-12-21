@@ -23,7 +23,7 @@ public class WebSocketController {
     @GetMapping("/pushone")
     public void pushone()
     {
-        WebSocketService.sendMessage("badao","公众号:霸道的程序猿");
+        WebSocketService.sendMessage(1,"公众号:霸道的程序猿");
     }
 
     @PostMapping("/init")

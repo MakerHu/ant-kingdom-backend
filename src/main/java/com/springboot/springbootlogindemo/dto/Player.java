@@ -7,6 +7,7 @@ import java.util.List;
 
 public class Player {
     private User user;
+    private String state;
     private List<Card> idleCardList; //手中的空闲牌
     private List<Card> showCardList; //亮出的牌
     private List<Card> hideCardList; //翻面的牌
@@ -68,5 +69,13 @@ public class Player {
 
     public void setBankruptcy(boolean bankruptcy) {
         isBankruptcy = bankruptcy;
+    }
+
+    public String getState() {
+        return state;
+    }
+
+    public void setState(String state) {
+        this.state = state;
     }
 }

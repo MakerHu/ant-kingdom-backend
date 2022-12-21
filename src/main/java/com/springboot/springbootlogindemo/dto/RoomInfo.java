@@ -1,6 +1,7 @@
 package com.springboot.springbootlogindemo.dto;
 
 import com.springboot.springbootlogindemo.domain.Card;
+import com.springboot.springbootlogindemo.domain.Room;
 
 import java.util.List;
 import java.util.Stack;
@@ -50,5 +51,16 @@ public class RoomInfo {
 
     public void setWinner(Player winner) {
         this.winner = winner;
+    }
+
+    @Override
+    public String toString() {
+        return "RoomInfo{" +
+                "players=" + players +
+                ", cardStack=" + cardStack +
+                ", environmentCard=" + environmentCard +
+                ", environmentRice=" + environmentRice +
+                ", winner=" + winner +
+                '}';
     }
 }

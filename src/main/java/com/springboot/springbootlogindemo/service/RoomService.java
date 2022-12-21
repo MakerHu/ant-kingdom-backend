@@ -11,4 +11,5 @@ public interface RoomService {
     List<Room> getRoomList();
 
     Room getRoomById(String id);
+
 }
