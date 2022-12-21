@@ -15,8 +15,8 @@ public class RoomController {
     private RoomService roomService;
 
     @PostMapping("/addRoom")
-    public Result<Room> addRoom(@RequestBody Room newRoom){
-        Room room = roomService.addRoom(newRoom);
+    public Result<Room> addRoom(@RequestParam String roomName){
+        Room room = roomService.addRoom(roomName);
         return Result.success(room,"房间创建成功！");
     }
 

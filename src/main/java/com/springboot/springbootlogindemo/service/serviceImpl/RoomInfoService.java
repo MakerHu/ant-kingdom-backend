@@ -40,6 +40,8 @@ public class RoomInfoService {
 
         return roomInfo;
     }
+    //TODO 玩家进入游戏
+
     //游戏开始，发牌，随机选择环境牌，初始化玩家信息
     public RoomInfo deal(RoomInfo roomInfo){
         //随机选择环境牌
@@ -88,4 +90,9 @@ public class RoomInfoService {
         }
         return roomInfo;
     }
+    //TODO 出两张明牌
+    public RoomInfo showTwoCards(RoomInfo roomInfo,int uid,List<Integer> seq ){
+        return roomInfo;
+    }
+
 }

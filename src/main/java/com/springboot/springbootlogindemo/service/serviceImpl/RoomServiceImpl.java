@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Random;
 
 @Service
 public class RoomServiceImpl implements RoomService {
@@ -15,7 +16,12 @@ public class RoomServiceImpl implements RoomService {
     private RoomDao roomDao;
 
     @Override
-    public Room addRoom(Room room) {
+    public Room addRoom(String roomName) {
+        Room room = new Room();
+        room.setId(getStringRandom(6));
+        room.setName(roomName);
+        room.setPeopleNum(1);
+        room.setStatus(0);
         return roomDao.save(room);
     }
 
@@ -28,4 +34,15 @@ public class RoomServiceImpl implements RoomService {
     public Room getRoomById(String id) {
         return roomDao.findById(id);
     }
+
+    //生成随机数字和字母,
+    public String getStringRandom(int length) {
+        StringBuffer val = new StringBuffer();
+        Random random = new Random();
+        for(int i = 0; i < length; i++) {
+            val.append((char)(random.nextInt(26) + 65));
+        }
+        return val.toString();
+    }
+
 }
