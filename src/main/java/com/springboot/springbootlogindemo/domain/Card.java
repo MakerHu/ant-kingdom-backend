@@ -1,6 +1,8 @@
 package com.springboot.springbootlogindemo.domain;
 
 import javax.persistence.*;
+import java.util.List;
+import java.util.Map;
 
 @Table(name = "card")
 @Entity
@@ -16,6 +18,9 @@ public class Card {
     private int initValue;
 
     private int rice;
+
+    @Transient
+    private List<Map<String,String>> relationList;
 
     public int getId() {
         return id;
@@ -55,5 +60,13 @@ public class Card {
 
     public void setRice(int rice) {
         this.rice = rice;
+    }
+
+    public List<Map<String,String>> getRelationList() {
+        return relationList;
+    }
+
+    public void setRelationList(List<Map<String,String>> relationList) {
+        this.relationList = relationList;
     }
 }

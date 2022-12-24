@@ -37,6 +37,19 @@ public class RoomInfoService {
         List<Card> cardList = cardService.getCardList();
         List<Card> allCardList = new ArrayList<>();
         for(Card card:cardList){
+            card.setRelationList(new ArrayList<>());
+            List<CardRelation> relateCardList = cardRelationService.findByCard1(card.getId());
+            for (CardRelation relationCardInfo : relateCardList) {
+                for (Card relationCard : cardList) {
+                    if (relationCardInfo.getCard2() == relationCard.getId()){
+                        Map<String, String> relationCardMap = new HashMap<>();
+                        relationCardMap.put("name",relationCard.getName());
+                        relationCardMap.put("valueImpact",relationCardInfo.getValueImpact());
+                        card.getRelationList().add(relationCardMap);
+                    }
+                }
+            }
+
             int num = 0;
             if(card.getType() == 0){
                 num = 20;
