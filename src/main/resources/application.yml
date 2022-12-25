@@ -1,0 +1,10 @@
+# 配置端口号为8081
+server:
+  port: 8081
+
+spring:  # 配置数据库
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${AK_DBSERVER:localhost}:${AK_DBPORT:3306}/${AK_DBNAME:ant_kingdom}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+    username: ${AK_DBUSER:root}
+    password: ${AK_DBPASSOWRD:123456}
