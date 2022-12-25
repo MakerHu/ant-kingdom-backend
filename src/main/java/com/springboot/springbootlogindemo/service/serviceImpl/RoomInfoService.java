@@ -52,11 +52,11 @@ public class RoomInfoService {
 
             int num = 0;
             if(card.getType() == 0){
-                num = 20;
+                num = 10;
             }else{
-                num = 5;
+                num = 2;
             }
-            for(int i = 0;i < num;i ++){
+            for(int i = 0;i < num;i++){
                 allCardList.add(card);
             }
         }
@@ -118,7 +118,7 @@ public class RoomInfoService {
                 cardList.add(cardStack.pop());
             }
             player.setIdleCardList(cardList);
-            player.setRice(100);
+            player.setRice(1000);
             player.setShowCardList(new ArrayList<>());
             player.setHideCardList(new ArrayList<>());
         }
@@ -127,14 +127,15 @@ public class RoomInfoService {
     }
     //抽一张牌
     public Result<RoomInfo> brand(RoomInfo roomInfo, int uid){
+        int buyAntCost = 50;
         List<Player> players = new ArrayList<>();
         for(Player player:roomInfo.getPlayers()){
             if(player.getUser().getUid() == uid){
-                if(player.getRice() < 5){
+                if(player.getRice() < buyAntCost){
                     return Result.error("101","食物不够获得新的蚂蚁");
                 }else if(player.getIdleCardList().size() == 8){
                     return Result.error("101","蚂蚁上限不能超过8只");
-                } else if(player.getRice() >= 5 && player.getIdleCardList().size()<8){
+                } else if(player.getRice() >= buyAntCost && player.getIdleCardList().size()<8){
                     Stack<Card> cardStack = roomInfo.getCardStack();
                     Card card = cardStack.pop();
                     roomInfo.setCardStack(cardStack);
@@ -142,7 +143,7 @@ public class RoomInfoService {
                     List<Card> idleCardList = player.getIdleCardList();
                     idleCardList.add(card);
                     player.setIdleCardList(idleCardList);
-                    player.setRice(player.getRice()-5);
+                    player.setRice(player.getRice()-buyAntCost);
 
                 }
             }
@@ -376,7 +377,7 @@ public class RoomInfoService {
                 player.setBankruptcy(true);
                 flag = true;
             }
-            else if(player.getRice()/5 + player.getIdleCardList().size() <4){
+            else if(player.getRice()/50 + player.getIdleCardList().size() <4){
                 player.setBankruptcy(true);
                 flag = true;
             }
