@@ -227,3 +227,14 @@ INSERT INTO `card_relation` VALUES (null, 13, 13, '+10');
 SET FOREIGN_KEY_CHECKS = 1;
 
 ```
+
+## 系统环境变量配置
+在`/etc/profile`中添加下列变量，数据库账号密码根据部署情况调整
+```shell
+export AK_DBSERVER=127.0.0.1
+export AK_DBPORT=3306
+export AK_DBNAME=ant_kingdom
+export AK_DBUSER=root
+export AK_DBPASSOWRD=123456
+```
+保存退出后`source /etc/profile`让配置生效
