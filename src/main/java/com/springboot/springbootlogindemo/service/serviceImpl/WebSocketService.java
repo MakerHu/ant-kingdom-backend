@@ -130,6 +130,8 @@ public class WebSocketService {
                         player.setState("UNREADY");
                     }
                     roomInfo.setCardStack(new Stack<>());
+                    roomInfo.setEnvironmentCard(null);
+                    roomInfo.setEnvironmentRice(0);
                     roomMap.put(roomId,roomInfo);
                     sendMessage(roomInfo,"ENEMY_QUIT");
 
@@ -280,7 +282,7 @@ public class WebSocketService {
     //玩家继续
     public void playerContinue(){
         RoomInfo roomInfo = roomMap.get(roomId);
-        Result result = roomInfoService.startNew(roomInfo,Integer.parseInt(uid));
+        Result result = roomInfoService.playerSelectContinue(roomInfo,Integer.parseInt(uid));
         if(result.getMsg().equalsIgnoreCase("success")){
             roomMap.put(roomId, (RoomInfo) result.getData());
         }else{
@@ -324,7 +326,14 @@ public class WebSocketService {
             }
 
         }
+    }
 
+    //玩家取消准备
+    public void cancelReady(){
+        RoomInfo roomInfo = roomMap.get(roomId);
+        roomInfo = roomInfoService.cancelReady(roomInfo,Integer.parseInt(uid));
+        roomMap.put(roomId,roomInfo);
+        sendMessage(roomInfo,"REFRESH");
     }
 
     /**
@@ -344,6 +353,9 @@ public class WebSocketService {
                     break;
                 case "READY":  //玩家准备
                     ready();
+                    break;
+                case "UNREADY":  //玩家准备
+                    cancelReady();
                     break;
                 case "SHOW":   //玩家亮两张牌
                     showTwoCards(instructions);
