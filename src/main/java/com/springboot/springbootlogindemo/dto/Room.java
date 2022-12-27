@@ -1,4 +1,4 @@
-package com.springboot.springbootlogindemo.domain;
+package com.springboot.springbootlogindemo.dto;
 
 import javax.persistence.*;
 

@@ -2,29 +2,23 @@ package com.springboot.springbootlogindemo.service.serviceImpl;
 
 import com.springboot.springbootlogindemo.domain.Card;
 import com.springboot.springbootlogindemo.domain.CardRelation;
-import com.springboot.springbootlogindemo.domain.Room;
+import com.springboot.springbootlogindemo.dto.Room;
 import com.springboot.springbootlogindemo.dto.Player;
 import com.springboot.springbootlogindemo.dto.RoomInfo;
-import com.springboot.springbootlogindemo.repository.RoomDao;
 import com.springboot.springbootlogindemo.service.CardRelationService;
 import com.springboot.springbootlogindemo.service.CardService;
-import com.springboot.springbootlogindemo.service.RoomService;
 import com.springboot.springbootlogindemo.utils.Result;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlExpression;
-import org.apache.tomcat.websocket.server.WsHttpUpgradeHandler;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class RoomInfoService {
 
-    @Resource
-    private RoomDao roomDao;
 
     @Resource
     private CardService cardService;
