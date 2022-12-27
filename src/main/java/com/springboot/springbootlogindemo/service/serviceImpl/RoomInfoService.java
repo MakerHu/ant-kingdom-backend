@@ -79,7 +79,7 @@ public class RoomInfoService {
     public Boolean isAllReady(RoomInfo roomInfo){
         if(roomInfo.getPlayers().size()>=2){
             for(Player player:roomInfo.getPlayers()){
-                if(player.getState().equalsIgnoreCase("UNREADY")){
+                if(!player.getState().equalsIgnoreCase("READY")){
                     return false;
                 }
             }
