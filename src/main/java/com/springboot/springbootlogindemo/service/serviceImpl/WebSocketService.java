@@ -1,6 +1,7 @@
 package com.springboot.springbootlogindemo.service.serviceImpl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.springboot.springbootlogindemo.domain.Card;
 import com.springboot.springbootlogindemo.dto.Room;
 import com.springboot.springbootlogindemo.dto.Player;
 import com.springboot.springbootlogindemo.dto.RoomInfo;
@@ -19,6 +20,7 @@ import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ServerEndpoint(value = "/websocket/{uid}")
@@ -117,6 +119,22 @@ public class WebSocketService {
                 if(room.getPeopleNum() == 0){
                     room.setStatus(2);
                     roomList.remove(roomId);
+                }
+                //如果正在游戏，玩家退出，直接结束
+                if(room.getStatus() == 1){
+                    for(Player player:roomInfo.getPlayers()){
+                        player.setIdleCardList(new ArrayList<>());
+                        player.setShowCardList(new ArrayList<>());
+                        player.setHideCardList(new ArrayList<>());
+                        player.setBankruptcy(false);
+                        player.setState("UNREADY");
+                    }
+                    roomInfo.setCardStack(new Stack<>());
+                    roomMap.put(roomId,roomInfo);
+                    sendMessage(roomInfo,"ENEMY_QUIT");
+
+                    room.setStatus(0);
+                    roomList.put(roomId,room);
                 }
             }
 

@@ -52,10 +52,11 @@ public class RoomInfo {
         this.winners = winners;
     }
 
+
     @Override
     public String toString() {
         return "RoomInfo{" +
-                "players=" + players +
+                ", players=" + players +
                 ", cardStack=" + cardStack +
                 ", environmentCard=" + environmentCard +
                 ", environmentRice=" + environmentRice +
