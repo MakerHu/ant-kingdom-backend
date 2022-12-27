@@ -130,6 +130,8 @@ public class WebSocketService {
                         player.setState("UNREADY");
                     }
                     roomInfo.setCardStack(new Stack<>());
+                    roomInfo.setEnvironmentCard(null);
+                    roomInfo.setEnvironmentRice(0);
                     roomMap.put(roomId,roomInfo);
                     sendMessage(roomInfo,"ENEMY_QUIT");
 
@@ -280,7 +282,7 @@ public class WebSocketService {
     //玩家继续
     public void playerContinue(){
         RoomInfo roomInfo = roomMap.get(roomId);
-        Result result = roomInfoService.startNew(roomInfo,Integer.parseInt(uid));
+        Result result = roomInfoService.playerSelectContinue(roomInfo,Integer.parseInt(uid));
         if(result.getMsg().equalsIgnoreCase("success")){
             roomMap.put(roomId, (RoomInfo) result.getData());
         }else{

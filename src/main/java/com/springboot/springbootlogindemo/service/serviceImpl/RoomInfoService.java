@@ -326,18 +326,14 @@ public class RoomInfoService {
     }
 
     //玩家选择继续
-    public Result<RoomInfo> startNew(RoomInfo roomInfo,int uid){
+    public Result<RoomInfo> playerSelectContinue(RoomInfo roomInfo,int uid){
         List<Player> players = new ArrayList<>();
         for(Player player:roomInfo.getPlayers()){
             if(player.getUser().getUid() == uid){
                 if(player.getIdleCardList().size() < 4){
                     return Result.error("101","玩家拥有的蚂蚁数量不够参与对战，请获取新的蚂蚁");
                 }else{
-                    player.setScore(0);
                     player.setState("continue");
-                    player.setChangeRice(0);
-                    player.setShowCardList(new ArrayList<>());
-                    player.setHideCardList(new ArrayList<>());
                 }
             }
             players.add(player);
@@ -366,6 +362,14 @@ public class RoomInfoService {
 //        System.out.println("随机数："+x);
         roomInfo.setEnvironmentCard(environmentCards.get(x));
         roomInfo.setEnvironmentRice(0);
+
+        for(Player player:roomInfo.getPlayers()){
+            player.setScore(0);
+            player.setChangeRice(0);
+            player.setShowCardList(new ArrayList<>());
+            player.setHideCardList(new ArrayList<>());
+        }
+
         return roomInfo;
     }
 
