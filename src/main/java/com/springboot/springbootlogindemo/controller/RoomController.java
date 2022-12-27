@@ -1,12 +1,19 @@
 package com.springboot.springbootlogindemo.controller;
 
 import com.springboot.springbootlogindemo.domain.Room;
+import com.springboot.springbootlogindemo.dto.RoomInfo;
 import com.springboot.springbootlogindemo.service.RoomService;
+import com.springboot.springbootlogindemo.service.serviceImpl.WebSocketService;
 import com.springboot.springbootlogindemo.utils.Result;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/room")
@@ -17,6 +24,7 @@ public class RoomController {
     @PostMapping("/addRoom")
     public Result<Room> addRoom(@RequestParam String roomName){
         Room room = roomService.addRoom(roomName);
+        WebSocketService.roomList.put(room.getId(),room);
         return Result.success(room,"房间创建成功！");
     }
 
@@ -27,6 +35,9 @@ public class RoomController {
 
     @PostMapping("/getRoomList")
     public Result<List<Room>> getRoomList(){
-        return Result.success(roomService.getRoomList(),"房间列表查询成功");
+        List<Room> roomList = new ArrayList<>(WebSocketService.roomList.values());
+
+        return Result.success(roomList,"房间列表查询成功");
+//        return Result.success(roomService.getRoomList(),"房间列表查询成功");
     }
 }
