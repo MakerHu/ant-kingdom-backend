@@ -99,9 +99,9 @@ public class RoomInfoService {
     //游戏开始，发牌，随机选择环境牌，初始化玩家信息
     public RoomInfo deal(RoomInfo roomInfo,String roomId){
         //改变房间状态
-        Room room = roomDao.findById(roomId);
+        Room room = WebSocketService.roomList.get(roomId);
         room.setStatus(1);
-        roomDao.save(room);
+        WebSocketService.roomList.put(roomId,room);
         //随机选择环境牌
         List<Card> environmentCards = cardService.findByType(1);
         Random r = new Random();
@@ -260,45 +260,49 @@ public class RoomInfoService {
     //给赢家奖励
     public RoomInfo award(RoomInfo roomInfo){
         Player winner = roomInfo.getPlayers().get(0);
-        for(Player player:roomInfo.getPlayers()){
-            if(player.getScore()>winner.getScore()){
-                winner = player;
-            }
+        Player player1 = roomInfo.getPlayers().get(1);
+        if(player1.getScore()>winner.getScore()){
+            winner = player1;
+        }else if(player1.getScore() == winner.getScore()){  //如果分数相同都不奖励也不惩罚
+            winner = null;
         }
-        List<Player> winners = roomInfo.getWinners();
-        winners.add(winner);
-        roomInfo.setWinners(winners);
-        List<Player> players = new ArrayList<>();
-        int awardRice = 0;
-        for(Player player:roomInfo.getPlayers()){
-            if(player.getUser().getUid() != winner.getUser().getUid()){
-                for(Card card:player.getShowCardList()){
-                    awardRice += card.getRice();
-                }
-                for(Card card:player.getHideCardList()){
-                    awardRice += card.getRice();
+        //        List<Player> winners = roomInfo.getWinners();
+//        winners.add(winner);
+//        roomInfo.setWinners(winners);
+        if(winner != null){
+            List<Player> players = new ArrayList<>();
+            int awardRice = 0;
+            for(Player player:roomInfo.getPlayers()){
+                if(player.getUser().getUid() != winner.getUser().getUid()){
+                    for(Card card:player.getShowCardList()){
+                        awardRice += card.getRice();
+                    }
+                    for(Card card:player.getHideCardList()){
+                        awardRice += card.getRice();
+                    }
                 }
             }
-        }
-        for(Player player:roomInfo.getPlayers()){
-            if(player.getUser().getUid() == winner.getUser().getUid()){
-                player.setRice(player.getRice()+awardRice);
-                player.setChangeRice(awardRice);
-            }else {
-                int deficitRice = 0;
-                for(Card card:player.getShowCardList()){
-                    deficitRice += card.getRice();
+            for(Player player:roomInfo.getPlayers()){
+                if(player.getUser().getUid() == winner.getUser().getUid()){
+                    player.setRice(player.getRice()+awardRice);
+                    player.setChangeRice(awardRice);
+                }else {
+                    int deficitRice = 0;
+                    for(Card card:player.getShowCardList()){
+                        deficitRice += card.getRice();
+                    }
+                    for(Card card:player.getHideCardList()){
+                        deficitRice += card.getRice();
+                    }
+                    player.setRice(player.getRice()-deficitRice);
+                    player.setChangeRice(0-deficitRice);
                 }
-                for(Card card:player.getHideCardList()){
-                    deficitRice += card.getRice();
-                }
-                player.setRice(player.getRice()-deficitRice);
-                player.setChangeRice(0-deficitRice);
+                player.setScore(0);
+                players.add(player);
             }
-            player.setScore(0);
-            players.add(player);
+            roomInfo.setPlayers(players);
         }
-        roomInfo.setPlayers(players);
+
         return roomInfo;
     }
 
