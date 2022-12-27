@@ -5,6 +5,7 @@ import com.springboot.springbootlogindemo.domain.Room;
 import com.springboot.springbootlogindemo.dto.Player;
 import com.springboot.springbootlogindemo.dto.RoomInfo;
 import com.springboot.springbootlogindemo.dto.WebSocketClient;
+import com.springboot.springbootlogindemo.repository.RoomDao;
 import com.springboot.springbootlogindemo.repository.UserDao;
 import com.springboot.springbootlogindemo.utils.Result;
 import org.apache.commons.lang3.StringUtils;
@@ -34,7 +35,6 @@ public class WebSocketService {
         userDao = userDao1;
     }
 
-
     private static RoomInfoService roomInfoService;
 
     @Autowired
@@ -51,6 +51,8 @@ public class WebSocketService {
     private static ConcurrentHashMap<String, WebSocketClient> webSocketMap = new ConcurrentHashMap<>();
 
     private static ConcurrentHashMap<String, RoomInfo> roomMap = new ConcurrentHashMap<>();
+
+    public static ConcurrentHashMap<String, Room> roomList = new ConcurrentHashMap<>();
 
 
     /**与某个客户端的连接会话，需要通过它来给客户端发送数据*/
@@ -107,6 +109,17 @@ public class WebSocketService {
             }
             roomInfo.setPlayers(players);
             roomMap.put(roomId,roomInfo);
+
+            //减少当前房间的人数
+            Room room = roomList.get(roomId);
+            room.setPeopleNum(room.getPeopleNum()-1);
+            roomList.put(roomId,room);
+            //若当前房间人数为0则修改房间状态 在内存中删除该房间信息
+            if(room.getPeopleNum() == 0){
+                room.setStatus(2);
+            }
+            roomList.remove(roomId);
+
         }
         log.info("----------------------------------------------------------------------------");
         log.info(uid+"用户退出,当前在线人数为:" + getOnlineCount());
@@ -115,6 +128,11 @@ public class WebSocketService {
     //玩家进入游戏
     public void enter(String roomId){
         this.roomId = roomId;
+        //房间人数+1
+        Room room = roomList.get(roomId);
+        room.setPeopleNum(room.getPeopleNum()+1);
+        roomList.put(roomId,room);
+
         if(!roomMap.containsKey(roomId)){
             RoomInfo roomInfo = new RoomInfo();
             Player player = new Player();

@@ -20,9 +20,9 @@ public class RoomServiceImpl implements RoomService {
         Room room = new Room();
         room.setId(getStringRandom(6));
         room.setName(roomName);
-        room.setPeopleNum(1);
+        room.setPeopleNum(0);
         room.setStatus(0);
-        return roomDao.save(room);
+        return room;
     }
 
     @Override
