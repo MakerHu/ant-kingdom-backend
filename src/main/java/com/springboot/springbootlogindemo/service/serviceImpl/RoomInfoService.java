@@ -411,4 +411,14 @@ public class RoomInfoService {
         }
     }
 
+    //玩家取消准备
+    public RoomInfo cancelReady(RoomInfo roomInfo,int uid){
+        for(Player player:roomInfo.getPlayers()){
+            if(player.getUser().getUid() == uid){
+                player.setState("UNREADY");
+            }
+        }
+        return roomInfo;
+    }
+
 }

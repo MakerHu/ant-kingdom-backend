@@ -326,7 +326,14 @@ public class WebSocketService {
             }
 
         }
+    }
 
+    //玩家取消准备
+    public void cancelReady(){
+        RoomInfo roomInfo = roomMap.get(roomId);
+        roomInfo = roomInfoService.cancelReady(roomInfo,Integer.parseInt(uid));
+        roomMap.put(roomId,roomInfo);
+        sendMessage(roomInfo,"REFRESH");
     }
 
     /**
@@ -346,6 +353,9 @@ public class WebSocketService {
                     break;
                 case "READY":  //玩家准备
                     ready();
+                    break;
+                case "UNREADY":  //玩家准备
+                    cancelReady();
                     break;
                 case "SHOW":   //玩家亮两张牌
                     showTwoCards(instructions);
