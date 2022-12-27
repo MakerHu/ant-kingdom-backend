@@ -115,10 +115,30 @@ public class WebSocketService {
                 Room room = roomList.get(roomId);
                 room.setPeopleNum(room.getPeopleNum()-1);
                 roomList.put(roomId,room);
+
+
+
                 //若当前房间人数为0则修改房间状态 在内存中删除该房间信息
                 if(room.getPeopleNum() == 0){
                     room.setStatus(2);
                     roomList.remove(roomId);
+                    roomMap.remove(roomId);
+                }
+                //如果游戏还未开始或者刚结束，清空手牌
+                if(room.getStatus() == 0){
+                    for(Player player:roomInfo.getPlayers()){
+                        player.setIdleCardList(new ArrayList<>());
+                        player.setShowCardList(new ArrayList<>());
+                        player.setHideCardList(new ArrayList<>());
+                        player.setScore(0);
+                        player.setRice(0);
+                        player.setBankruptcy(false);
+                    }
+                    roomInfo.setCardStack(new Stack<>());
+                    roomInfo.setEnvironmentCard(null);
+                    roomInfo.setEnvironmentRice(0);
+                    roomMap.put(roomId,roomInfo);
+                    sendMessage(roomInfo,"REFRESH");
                 }
                 //如果正在游戏，玩家退出，直接结束
                 if(room.getStatus() == 1){
