@@ -107,6 +107,7 @@ public class WebSocketService {
                 }
                 roomInfo.setPlayers(players);
                 roomMap.put(roomId,roomInfo);
+                sendMessage(roomInfo,"REFRESH");
 
                 //减少当前房间的人数
                 Room room = roomList.get(roomId);
@@ -201,6 +202,9 @@ public class WebSocketService {
                 sendMessage(roomInfo,"BANKRUPTCY");
             }
             if(roomInfoService.isGameOver(roomInfo)){
+                Room room = roomList.get(roomId);
+                room.setStatus(0);
+                roomList.put(roomId,room);
                 sendMessage(roomInfo,"GAME_OVER");
             }
         }

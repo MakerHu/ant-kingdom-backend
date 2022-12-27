@@ -104,6 +104,7 @@ public class RoomInfoService {
 //        System.out.println("随机数："+x);
         roomInfo.setEnvironmentCard(environmentCards.get(x));
         roomInfo.setEnvironmentRice(0);
+        roomInfo.setWinners(new ArrayList<>());
         //发牌
         Stack<Card> cardStack = roomInfo.getCardStack();
         for(Player player:roomInfo.getPlayers()){
@@ -113,8 +114,10 @@ public class RoomInfoService {
             }
             player.setIdleCardList(cardList);
             player.setRice(1000);
+            player.setScore(0);
             player.setShowCardList(new ArrayList<>());
             player.setHideCardList(new ArrayList<>());
+            player.setBankruptcy(false);
         }
         roomInfo.setCardStack(cardStack);
         return roomInfo;
