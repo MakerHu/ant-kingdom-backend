@@ -1,11 +1,10 @@
 package com.springboot.springbootlogindemo.service.serviceImpl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.springboot.springbootlogindemo.domain.Room;
+import com.springboot.springbootlogindemo.dto.Room;
 import com.springboot.springbootlogindemo.dto.Player;
 import com.springboot.springbootlogindemo.dto.RoomInfo;
 import com.springboot.springbootlogindemo.dto.WebSocketClient;
-import com.springboot.springbootlogindemo.repository.RoomDao;
 import com.springboot.springbootlogindemo.repository.UserDao;
 import com.springboot.springbootlogindemo.utils.Result;
 import org.apache.commons.lang3.StringUtils;
@@ -13,9 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
@@ -100,25 +97,29 @@ public class WebSocketService {
             }
             webSocketMap.remove(uid);
             RoomInfo roomInfo = roomMap.get(roomId);
-            List<Player> players = roomInfo.getPlayers();
-            for(Player player:players){
-                if(player.getUser().getUid() == Integer.parseInt(uid)){
-                    players.remove(player);
-                    break;
+            if(roomInfo != null){
+                List<Player> players = roomInfo.getPlayers();
+                for(Player player:players){
+                    if(player.getUser().getUid() == Integer.parseInt(uid)){
+                        players.remove(player);
+                        break;
+                    }
+                }
+                roomInfo.setPlayers(players);
+                roomMap.put(roomId,roomInfo);
+
+                //减少当前房间的人数
+                Room room = roomList.get(roomId);
+                room.setPeopleNum(room.getPeopleNum()-1);
+                roomList.put(roomId,room);
+                //若当前房间人数为0则修改房间状态 在内存中删除该房间信息
+                if(room.getPeopleNum() == 0){
+                    room.setStatus(2);
+                    roomList.remove(roomId);
                 }
             }
-            roomInfo.setPlayers(players);
-            roomMap.put(roomId,roomInfo);
 
-            //减少当前房间的人数
-            Room room = roomList.get(roomId);
-            room.setPeopleNum(room.getPeopleNum()-1);
-            roomList.put(roomId,room);
-            //若当前房间人数为0则修改房间状态 在内存中删除该房间信息
-            if(room.getPeopleNum() == 0){
-                room.setStatus(2);
-            }
-            roomList.remove(roomId);
+
 
         }
         log.info("----------------------------------------------------------------------------");
@@ -161,6 +162,8 @@ public class WebSocketService {
 //        System.out.println("roomMap"+roomMap.toString());
         RoomInfo roomInfo = roomMap.get(roomId);
         sendMessage(roomInfo,"REFRESH");
+
+
     }
 
     //给每个玩家发送牌局信息
@@ -272,6 +275,38 @@ public class WebSocketService {
         }
     }
 
+    //判断缓存是否被清空
+    public Boolean isExist(String instruction){
+        if(!roomId.equalsIgnoreCase("")){
+            Room room = roomList.get(roomId);
+            if(room == null){
+                JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success("连接错误","CONN_ERR"));
+                sendMessage(Integer.parseInt(uid),jsonObject.toString());
+                return false;
+            }else{
+                return true;
+            }
+        }else{
+            String[] instructions = instruction.split("#");
+            if(instructions[0].equalsIgnoreCase("ENTER")){
+                Room room = roomList.get(instructions[1]);
+                if(room == null){
+                    JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success("连接错误","CONN_ERR"));
+                    sendMessage(Integer.parseInt(uid),jsonObject.toString());
+                    return false;
+                }else{
+                    return true;
+                }
+            }else{
+                JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success("连接错误","CONN_ERR"));
+                sendMessage(Integer.parseInt(uid),jsonObject.toString());
+                return false;
+            }
+
+        }
+
+    }
+
     /**
      * 收到客户端消息后调用的方法
      *
@@ -281,30 +316,33 @@ public class WebSocketService {
         log.info("收到用户消息:"+uid+",报文:"+message);
         //可以群发消息
         //消息保存到数据库、redis
-        String[] instructions = message.split("#");
-        switch(instructions[0]){
-            case "ENTER":  //玩家进入
-                enter(instructions[1]);
-                break;
-            case "READY":  //玩家准备
-                ready();
-                break;
-            case "SHOW":   //玩家亮两张牌
-                showTwoCards(instructions);
-                break;
-            case "HIDE":  //玩家隐藏两张牌
-                hideTwoCards(instructions);
-                break;
-            case "END":
-                end();
-                break;
-            case "BRAND":
-                brand();
-                break;
-            case "CONTINUE":
-                playerContinue();
-                break;
+        if(isExist(message)){
+            String[] instructions = message.split("#");
+            switch(instructions[0]){
+                case "ENTER":  //玩家进入
+                    enter(instructions[1]);
+                    break;
+                case "READY":  //玩家准备
+                    ready();
+                    break;
+                case "SHOW":   //玩家亮两张牌
+                    showTwoCards(instructions);
+                    break;
+                case "HIDE":  //玩家隐藏两张牌
+                    hideTwoCards(instructions);
+                    break;
+                case "END":
+                    end();
+                    break;
+                case "BRAND":
+                    brand();
+                    break;
+                case "CONTINUE":
+                    playerContinue();
+                    break;
+            }
         }
+
         if(StringUtils.isNotBlank(message)){
 
         }

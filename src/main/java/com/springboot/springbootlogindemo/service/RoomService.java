@@ -1,15 +1,12 @@
 package com.springboot.springbootlogindemo.service;
 
-import com.springboot.springbootlogindemo.domain.Room;
-
-import java.util.List;
+import com.springboot.springbootlogindemo.dto.Room;
 
 public interface RoomService {
 
     Room addRoom(String roomName);
 
-    List<Room> getRoomList();
-
-    Room getRoomById(String id);
+//
+//    Room getRoomById(String id);
 
 }

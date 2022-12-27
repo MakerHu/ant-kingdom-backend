@@ -1,7 +1,6 @@
 package com.springboot.springbootlogindemo.dto;
 
 import com.springboot.springbootlogindemo.domain.Card;
-import com.springboot.springbootlogindemo.domain.Room;
 
 import java.util.List;
 import java.util.Stack;
