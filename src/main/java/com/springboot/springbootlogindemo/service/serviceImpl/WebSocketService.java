@@ -119,8 +119,6 @@ public class WebSocketService {
                 }
             }
 
-
-
         }
         log.info("----------------------------------------------------------------------------");
         log.info(uid+"用户退出,当前在线人数为:" + getOnlineCount());
