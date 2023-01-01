@@ -19,6 +19,7 @@ import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,30 +60,65 @@ public class WebSocketService {
     /**接收userName*/
     private String uid="";
     /**接收房间号*/
-    private String roomId="";
+    private static String roomId="";
     /**
      * 连接建立成功调用的方法*/
     @OnOpen
-    public void onOpen(Session session, @PathParam("uid") String uid) {
-        if(!webSocketMap.containsKey(uid))
-        {
-            addOnlineCount(); // 在线数 +1
-        }
-        this.session = session;
-        this.uid= uid;
-        WebSocketClient client = new WebSocketClient();
-        client.setSession(session);
-        client.setUri(session.getRequestURI().toString());
-        webSocketMap.put(uid, client);
+    public void onOpen(Session session, @PathParam("uid") String uidRoomId) {
+//        System.out.println("uidRoomId"+uidRoomId);
+        String[] infos = uidRoomId.split("-");
+        this.roomId = infos[1];
+        this.uid= infos[0];
 
-        log.info("----------------------------------------------------------------------------");
-        log.info("用户连接:"+uid+",当前在线人数为:" + getOnlineCount());
-        try {
-            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success("来自后台的反馈：连接成功","MSG"));
-            sendMessage(jsonObject.toString());
-        } catch (IOException e) {
-            log.error("用户:"+uid+",网络异常!!!!!!");
+        addOnlineCount(); // 在线数 +1
+
+        if(!webSocketMap.containsKey(infos[0]))
+        {
+
+            this.session = session;
+
+            WebSocketClient client = new WebSocketClient();
+            client.setSession(session);
+            client.setRoomId(roomId);
+            client.setUri(session.getRequestURI().toString());
+            webSocketMap.put(uid, client);
+
+            log.info("----------------------------------------------------------------------------");
+            log.info("用户连接:"+uid+",当前在线人数为:" + getOnlineCount());
+            try {
+                JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success("来自后台的反馈：连接成功","MSG"));
+                sendMessage(jsonObject.toString());
+            } catch (IOException e) {
+                log.error("用户:"+uid+",网络异常!!!!!!");
+            }
+            enter();
+        }else{
+            WebSocketClient client = webSocketMap.get(uid);
+            client.setSession(session);
+            webSocketMap.put(uid,client);
+            if(!webSocketMap.get(uid).getRoomId().equalsIgnoreCase(roomId)){
+                Room room = roomList.get(webSocketMap.get(uid).getRoomId());
+                JSONObject jsonObject = (JSONObject) JSONObject.toJSON(
+                        Result.success(room,"ENTER_ERR"));
+                sendMessage(Integer.parseInt(uid),jsonObject.toString());
+                System.out.println("jsonObject.toString()"+jsonObject.toString());
+                if(roomList.get(roomId).getPeopleNum() == 0){
+                    roomList.remove(roomId);
+                }
+            }else{
+                enter();
+//                RoomInfo roomInfo = roomMap.get(roomId);
+//                for(Player player:roomInfo.getPlayers()){
+//                    if(player.getUser().getUid() == Integer.parseInt(uid)){
+//                        player.setState("READY");
+//                    }
+//                }
+//                roomMap.put(roomId,roomInfo);
+//                sendMessage(roomInfo,"REFRESH");
+            }
+
         }
+
     }
 
     /**
@@ -90,6 +126,82 @@ public class WebSocketService {
      */
     @OnClose
     public void onClose() {
+        if(webSocketMap.containsKey(uid)) {
+//
+            if (webSocketMap.size() > 0) {
+                //从set中删除
+                subOnlineCount();
+            }
+        }
+//            webSocketMap.remove(uid);
+//            RoomInfo roomInfo = roomMap.get(roomId);
+//            if(roomInfo != null){
+//                List<Player> players = roomInfo.getPlayers();
+//                for(Player player:players){
+//                    if(player.getUser().getUid() == Integer.parseInt(uid)){
+//                        players.remove(player);
+//                    }
+//                }
+//                roomInfo.setPlayers(players);
+//                roomMap.put(roomId,roomInfo);
+//                sendMessage(roomInfo,"REFRESH");
+//
+//                //减少当前房间的人数
+//                Room room = roomList.get(roomId);
+//                room.setPeopleNum(room.getPeopleNum()-1);
+//                roomList.put(roomId,room);
+//
+//
+//
+//                //若当前房间人数为0则修改房间状态 在内存中删除该房间信息
+//                if(room.getPeopleNum() == 0){
+//                    room.setStatus(2);
+//                    roomList.remove(roomId);
+//                    roomMap.remove(roomId);
+//                }
+//                //如果游戏还未开始或者刚结束，清空手牌
+//                if(room.getStatus() == 0){
+//                    for(Player player:roomInfo.getPlayers()){
+//                        player.setIdleCardList(new ArrayList<>());
+//                        player.setShowCardList(new ArrayList<>());
+//                        player.setHideCardList(new ArrayList<>());
+//                        player.setScore(0);
+//                        player.setRice(0);
+//                        player.setBankruptcy(false);
+//                    }
+//                    roomInfo.setCardStack(new Stack<>());
+//                    roomInfo.setEnvironmentCard(null);
+//                    roomInfo.setEnvironmentRice(0);
+//                    roomMap.put(roomId,roomInfo);
+//                    sendMessage(roomInfo,"REFRESH");
+//                }
+//                //如果正在游戏，玩家退出，直接结束
+//                if(room.getStatus() == 1){
+//                    for(Player player:roomInfo.getPlayers()){
+//                        player.setIdleCardList(new ArrayList<>());
+//                        player.setShowCardList(new ArrayList<>());
+//                        player.setHideCardList(new ArrayList<>());
+//                        player.setBankruptcy(false);
+//                        player.setState("UNREADY");
+//                    }
+//                    roomInfo.setCardStack(new Stack<>());
+//                    roomInfo.setEnvironmentCard(null);
+//                    roomInfo.setEnvironmentRice(0);
+//                    roomMap.put(roomId,roomInfo);
+//                    sendMessage(roomInfo,"ENEMY_QUIT");
+//
+//                    room.setStatus(0);
+//                    roomList.put(roomId,room);
+//                }
+//            }
+//
+//        }
+        log.info("----------------------------------------------------------------------------");
+        log.info(uid+"用户退出,当前在线人数为:" + getOnlineCount());
+    }
+
+    //玩家主动离开游戏
+    public void quit(){
         if(webSocketMap.containsKey(uid)){
 
             if(webSocketMap.size()>0)
@@ -101,20 +213,28 @@ public class WebSocketService {
             RoomInfo roomInfo = roomMap.get(roomId);
             if(roomInfo != null){
                 List<Player> players = roomInfo.getPlayers();
-                for(Player player:players){
-                    if(player.getUser().getUid() == Integer.parseInt(uid)){
-                        players.remove(player);
-                        break;
-                    }
+                //TODO 并发问题，亟待解决
+                Iterator<Player> iterator = players.iterator();
+                while(iterator.hasNext()){
+                    Player player = iterator.next();
+                    if(player.getUser().getUid() == Integer.parseInt(uid))
+                        iterator.remove();   //注意这个地方
                 }
+
+//                for(Player player:players){
+//                    if(player.getUser().getUid() == Integer.parseInt(uid)){
+//                        players.remove(player);
+//                    }
+//                }
                 roomInfo.setPlayers(players);
                 roomMap.put(roomId,roomInfo);
                 sendMessage(roomInfo,"REFRESH");
 
                 //减少当前房间的人数
                 Room room = roomList.get(roomId);
-                room.setPeopleNum(room.getPeopleNum()-1);
-                roomList.put(roomId,room);
+//                room.setPeopleNum(room.getPeopleNum()-1);
+//                roomList.put(roomId,room);
+                updateRoomPeopleNum();
 
 
 
@@ -161,47 +281,82 @@ public class WebSocketService {
             }
 
         }
-        log.info("----------------------------------------------------------------------------");
-        log.info(uid+"用户退出,当前在线人数为:" + getOnlineCount());
+    }
+    //更新房间人数
+    public void updateRoomPeopleNum(){
+        Room room = roomList.get(roomId);
+        if(room != null){
+            if(roomMap.containsKey(roomId)){
+                RoomInfo roomInfo = roomMap.get(roomId);
+                room.setPeopleNum(roomInfo.getPlayers().size());
+            }else{
+                room.setPeopleNum(0);
+            }
+        }
+//        roomList.put(roomId,room);
     }
 
     //玩家进入游戏
-    public void enter(String roomId){
-        this.roomId = roomId;
+    public void enter(){
         //房间人数+1
         Room room = roomList.get(roomId);
-        room.setPeopleNum(room.getPeopleNum()+1);
-        roomList.put(roomId,room);
 
-        if(!roomMap.containsKey(roomId)){
-            RoomInfo roomInfo = new RoomInfo();
-            Player player = new Player();
+        if(room != null){
+            if(!roomMap.containsKey(roomId)){
+
+                RoomInfo roomInfo = new RoomInfo();
+                Player player = new Player();
 //            System.out.println("uid:"+uid);
-            player.setUser(userDao.findByUid(Integer.parseInt(uid)));
-            player.setState("UNREADY");
-            List<Player> players = new ArrayList<>();
-            players.add(player);
-            roomInfo.setPlayers(players);
-            roomMap.put(roomId,roomInfo);
-        }else{
-            RoomInfo roomInfo = roomMap.get(roomId);
-            Player player = new Player();
+                player.setUser(userDao.findByUid(Integer.parseInt(uid)));
+                player.setState("UNREADY");
+                List<Player> players = new ArrayList<>();
+                players.add(player);
+                roomInfo.setPlayers(players);
+                roomMap.put(roomId,roomInfo);
+            }else{
+                RoomInfo roomInfo = roomMap.get(roomId);
+                Player user = null;
+                for(Player player:roomInfo.getPlayers()){
+                    if(player.getUser().getUid() == Integer.parseInt(uid)){
+                        user = player;
+                        break;
+                    }
+                }
+                if(user == null){
+                    Player player = new Player();
 //            System.out.println("uid:"+uid);
-            player.setUser(userDao.findByUid(Integer.parseInt(uid)));
-            player.setState("UNREADY");
-            List<Player> players = roomInfo.getPlayers();
-            players.add(player);
-            roomInfo.setPlayers(players);
-            roomMap.put(roomId,roomInfo);
-        }
-        WebSocketClient webSocketClient = webSocketMap.get(uid);
-        webSocketClient.setRoomId(roomId);
-        webSocketMap.put(uid,webSocketClient);
+                    player.setUser(userDao.findByUid(Integer.parseInt(uid)));
+                    player.setState("UNREADY");
+                    List<Player> players = roomInfo.getPlayers();
+                    players.add(player);
+//                    roomInfo.setPlayers(players);
+//                    roomMap.put(roomId,roomInfo);
+                }else{
+                    user.setState("UNREADY");
+                }
+            }
+//        WebSocketClient webSocketClient = webSocketMap.get(uid);
+//        webSocketClient.setRoomId(roomId);
+//        webSocketMap.put(uid,webSocketClient);
 //        System.out.println("webSocketMap"+webSocketMap.toString());
 //        System.out.println("roomMap"+roomMap.toString());
-        RoomInfo roomInfo = roomMap.get(roomId);
-        sendMessage(roomInfo,"REFRESH");
+            RoomInfo roomInfo = roomMap.get(roomId);
+            sendMessage(roomInfo,"REFRESH");
+        }else{
+            JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success("连接错误","CONN_ERR"));
+            sendMessage(Integer.parseInt(uid),jsonObject.toString());
+            if(webSocketMap.containsKey(uid)){
+                if(webSocketMap.size()>0)
+                {
+                    //从set中删除
+                    subOnlineCount();
+                }
+                webSocketMap.remove(uid);
+            }
+            System.out.println("jsonObject.toString()"+jsonObject.toString());
+        }
 
+        updateRoomPeopleNum();
 
     }
 
@@ -324,6 +479,15 @@ public class WebSocketService {
             if(room == null){
                 JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success("连接错误","CONN_ERR"));
                 sendMessage(Integer.parseInt(uid),jsonObject.toString());
+                if(webSocketMap.containsKey(uid)){
+                    if(webSocketMap.size()>0)
+                    {
+                        //从set中删除
+                        subOnlineCount();
+                    }
+                    webSocketMap.remove(uid);
+                }
+                System.out.println("jsonObject.toString()"+jsonObject.toString());
                 return false;
             }else{
                 return true;
@@ -335,6 +499,15 @@ public class WebSocketService {
                 if(room == null){
                     JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success("连接错误","CONN_ERR"));
                     sendMessage(Integer.parseInt(uid),jsonObject.toString());
+                    if(webSocketMap.containsKey(uid)){
+                        if(webSocketMap.size()>0)
+                        {
+                            //从set中删除
+                            subOnlineCount();
+                        }
+                        webSocketMap.remove(uid);
+                    }
+                    System.out.println("jsonObject.toString()"+jsonObject.toString());
                     return false;
                 }else{
                     return true;
@@ -342,6 +515,15 @@ public class WebSocketService {
             }else{
                 JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success("连接错误","CONN_ERR"));
                 sendMessage(Integer.parseInt(uid),jsonObject.toString());
+                if(webSocketMap.containsKey(uid)){
+                    if(webSocketMap.size()>0)
+                    {
+                        //从set中删除
+                        subOnlineCount();
+                    }
+                    webSocketMap.remove(uid);
+                }
+                System.out.println("jsonObject.toString()"+jsonObject.toString());
                 return false;
             }
 
@@ -368,9 +550,9 @@ public class WebSocketService {
         if(isExist(message)){
             String[] instructions = message.split("#");
             switch(instructions[0]){
-                case "ENTER":  //玩家进入
-                    enter(instructions[1]);
-                    break;
+//                case "ENTER":  //玩家进入
+//                    enter();
+//                    break;
                 case "READY":  //玩家准备
                     ready();
                     break;
@@ -391,6 +573,9 @@ public class WebSocketService {
                     break;
                 case "CONTINUE":
                     playerContinue();
+                    break;
+                case "QUIT":
+                    quit();
                     break;
             }
         }
@@ -431,10 +616,25 @@ public class WebSocketService {
             if(webSocketClient!=null){
                 webSocketClient.getSession().getBasicRemote().sendText(message);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException(e.getMessage());
+            RoomInfo roomInfo = roomMap.get(roomId);
+            for(Player player:roomInfo.getPlayers()){
+                if(player.getUser().getUid() == uid){
+                    player.setState("OFFLINE");
+                }else if(player.getUser().getUid() != uid && !player.getState().equalsIgnoreCase("OFFLINE")){
+                    JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,"OFFLINE"));
+                    sendMessage(player.getUser().getUid(),jsonObject.toString());
+                    System.out.println("jsonObject.toString()"+jsonObject.toString());
+                }
+            }
+//            throw new RuntimeException(e.getMessage());
         }
+//        catch (IllegalStateException e1){
+//            e1.printStackTrace();
+//            //玩家非正常离开，保留玩家信息，修改其状态为离线，给另一位玩家发送消息
+
+//        }
     }
 
 
