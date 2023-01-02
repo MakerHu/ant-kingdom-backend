@@ -77,7 +77,7 @@ public class RoomInfoService {
     }
     //判断游戏是否要开始
     public Boolean isAllReady(RoomInfo roomInfo){
-        if(roomInfo.getPlayers().size()>=2){
+        if(roomInfo.getPlayers().size()==2){
             for(Player player:roomInfo.getPlayers()){
                 if(!player.getState().equalsIgnoreCase("READY")){
                     return false;
@@ -118,6 +118,8 @@ public class RoomInfoService {
             player.setShowCardList(new ArrayList<>());
             player.setHideCardList(new ArrayList<>());
             player.setBankruptcy(false);
+            player.setOffLine(false);
+            player.setState("SHOW_START");
         }
         roomInfo.setCardStack(cardStack);
         return roomInfo;
@@ -164,6 +166,7 @@ public class RoomInfoService {
                 showCardList.add(card2);
                 player.setIdleCardList(idleCardList);
                 player.setShowCardList(showCardList);
+                player.setState("SHOW_END");
             }
             players.add(player);
         }
@@ -186,6 +189,7 @@ public class RoomInfoService {
                 hideCardList.add(card2);
                 player.setIdleCardList(idleCardList);
                 player.setHideCardList(hideCardList);
+                player.setState("HIDE_END");
             }
             players.add(player);
         }
@@ -197,11 +201,11 @@ public class RoomInfoService {
     public Boolean isEveryone(RoomInfo roomInfo,String type){
         for(Player player:roomInfo.getPlayers()){
             if(type.equalsIgnoreCase("show")){
-                if(player.getShowCardList().size() == 0){
+                if(!player.getState().equalsIgnoreCase("SHOW_END")){
                     return false;
                 }
             }else if(type.equalsIgnoreCase("hide")){
-                if(player.getHideCardList().size() == 0){
+                if(!player.getState().equalsIgnoreCase("HIDE_END")){
                     return false;
                 }
             }
@@ -308,7 +312,7 @@ public class RoomInfoService {
         List<Player> players = new ArrayList<>();
         for(Player player:roomInfo.getPlayers()){
             if(player.getUser().getUid() == uid){
-                player.setState("end");
+                player.setState("ROUND_END");
             }
             players.add(player);
         }
@@ -318,7 +322,7 @@ public class RoomInfoService {
     //判断是否所有玩家选择结束本回合
     public Boolean isEveryoneEnd(RoomInfo roomInfo){
         for(Player player:roomInfo.getPlayers()){
-            if(!player.getState().equalsIgnoreCase("end")){
+            if(!player.getState().equalsIgnoreCase("ROUND_END")){
                 return false;
             }
         }
@@ -333,7 +337,7 @@ public class RoomInfoService {
                 if(player.getIdleCardList().size() < 4){
                     return Result.error("101","玩家拥有的蚂蚁数量不够参与对战，请获取新的蚂蚁");
                 }else{
-                    player.setState("continue");
+                    player.setState("CONTINUE");
                 }
             }
             players.add(player);
@@ -345,7 +349,7 @@ public class RoomInfoService {
     //判断是否所有人都继续
     public Boolean isEveryoneContinue(RoomInfo roomInfo){
         for(Player player:roomInfo.getPlayers()){
-            if(!player.getState().equalsIgnoreCase("continue")){
+            if(!player.getState().equalsIgnoreCase("CONTINUE")){
                 return false;
             }
         }
@@ -368,6 +372,7 @@ public class RoomInfoService {
             player.setChangeRice(0);
             player.setShowCardList(new ArrayList<>());
             player.setHideCardList(new ArrayList<>());
+            player.setState("SHOW_START");
         }
 
         return roomInfo;
