@@ -93,6 +93,19 @@ public class WebSocketService {
             enter();
         }else{
             WebSocketClient client = webSocketMap.get(uid);
+            //如果这个账号多设备登录
+            if(!isPlayerOffLine(uid)){
+                try {
+                    JSONObject jsonObject = (JSONObject) JSONObject.toJSON(
+                            Result.success("该账号在其他设备登录","DEVICE_REPLACE"));
+                    sendMessage(Integer.parseInt(uid),jsonObject.toString());
+                    System.out.println("jsonObject.toString()"+jsonObject.toString());
+                    client.getSession().close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
             client.setSession(session);
             webSocketMap.put(uid,client);
             if(!webSocketMap.get(uid).getRoomId().equalsIgnoreCase(roomId)){
@@ -118,6 +131,16 @@ public class WebSocketService {
 
         }
 
+    }
+
+    public Boolean isPlayerOffLine(String uid){
+        RoomInfo roomInfo = roomMap.get(webSocketMap.get(uid).getRoomId());
+        for(Player player:roomInfo.getPlayers()){
+            if(player.getUser().getUid() == Integer.parseInt(uid)){
+                return player.isOffLine();
+            }
+        }
+        return true;
     }
 
     /**
@@ -642,15 +665,18 @@ public class WebSocketService {
         } catch (Exception e) {
             e.printStackTrace();
             RoomInfo roomInfo = roomMap.get(roomId);
-            for(Player player:roomInfo.getPlayers()){
-                if(player.getUser().getUid() == uid){
-                    player.setOffLine(true);
-                }else if(player.getUser().getUid() != uid && !player.isOffLine()){
-                    JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,"OFFLINE"));
-                    sendMessage(player.getUser().getUid(),jsonObject.toString());
-                    System.out.println("jsonObject.toString()"+jsonObject.toString());
+            if(roomInfo != null){
+                for(Player player:roomInfo.getPlayers()){
+                    if(player.getUser().getUid() == uid){
+                        player.setOffLine(true);
+                    }else if(player.getUser().getUid() != uid && !player.isOffLine()){
+                        JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,"OFFLINE"));
+                        sendMessage(player.getUser().getUid(),jsonObject.toString());
+                        System.out.println("jsonObject.toString()"+jsonObject.toString());
+                    }
                 }
             }
+
 //            throw new RuntimeException(e.getMessage());
         }
 //        catch (IllegalStateException e1){
