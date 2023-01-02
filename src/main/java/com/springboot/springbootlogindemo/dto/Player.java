@@ -16,6 +16,7 @@ public class Player {
     private int score;
     private int finalValue;
     private boolean bankruptcy; //是否破产
+    private boolean isOffLine;
 
     public User getUser() {
         return user;
@@ -95,5 +96,13 @@ public class Player {
 
     public void setChangeRice(int changeRice) {
         this.changeRice = changeRice;
+    }
+
+    public boolean isOffLine() {
+        return isOffLine;
+    }
+
+    public void setOffLine(boolean offLine) {
+        isOffLine = offLine;
     }
 }

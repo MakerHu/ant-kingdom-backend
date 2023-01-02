@@ -1,7 +1,6 @@
 package com.springboot.springbootlogindemo.service.serviceImpl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.springboot.springbootlogindemo.domain.Card;
 import com.springboot.springbootlogindemo.dto.Room;
 import com.springboot.springbootlogindemo.dto.Player;
 import com.springboot.springbootlogindemo.dto.RoomInfo;
@@ -309,6 +308,7 @@ public class WebSocketService {
 //            System.out.println("uid:"+uid);
                 player.setUser(userDao.findByUid(Integer.parseInt(uid)));
                 player.setState("UNREADY");
+                player.setOffLine(false);
                 List<Player> players = new ArrayList<>();
                 players.add(player);
                 roomInfo.setPlayers(players);
@@ -327,12 +327,14 @@ public class WebSocketService {
 //            System.out.println("uid:"+uid);
                     player.setUser(userDao.findByUid(Integer.parseInt(uid)));
                     player.setState("UNREADY");
+                    player.setOffLine(false);
                     List<Player> players = roomInfo.getPlayers();
                     players.add(player);
 //                    roomInfo.setPlayers(players);
 //                    roomMap.put(roomId,roomInfo);
                 }else{
-                    user.setState("UNREADY");
+//                    user.setState("UNREADY");
+                    user.setOffLine(false);
                 }
             }
 //        WebSocketClient webSocketClient = webSocketMap.get(uid);
@@ -385,6 +387,7 @@ public class WebSocketService {
     public void end(){
         RoomInfo roomInfo = roomInfoService.end(roomMap.get(roomId),Integer.parseInt(uid));
         roomMap.put(roomId,roomInfo);
+        sendMessage(roomInfo,"REFRESH");
         if(roomInfoService.isEveryoneEnd(roomInfo)){
             roomInfo = roomInfoService.calculateScore(roomInfo);
             roomInfo = roomInfoService.award(roomInfo);
@@ -396,12 +399,24 @@ public class WebSocketService {
                 roomInfo = roomMap.get(roomId);
                 sendMessage(roomInfo,"BANKRUPTCY");
             }
+            //如果游戏结束，玩家状态改为未准备
             if(roomInfoService.isGameOver(roomInfo)){
+                for(Player player:roomInfo.getPlayers()){
+                    player.setState("UNREADY");
+                }
                 Room room = roomList.get(roomId);
                 room.setStatus(0);
                 roomList.put(roomId,room);
                 sendMessage(roomInfo,"GAME_OVER");
             }
+            //如果可以继续，玩家状态改为未继续
+            else{
+                for(Player player:roomInfo.getPlayers()){
+                    player.setState("UNCONTINUE");
+                }
+                sendMessage(roomInfo,"REFRESH");
+            }
+            roomMap.put(roomId,roomInfo);
         }
     }
 
@@ -415,6 +430,9 @@ public class WebSocketService {
         roomMap.put(roomId,roomInfo);
         if(roomInfoService.isEveryone(roomInfo,"show")){
             roomInfo = roomInfoService.calculateScore(roomInfo);
+            for(Player player:roomInfo.getPlayers()){
+                player.setState("HIDE_START");
+            }
             roomMap.put(roomId,roomInfo);
             sendMessage(roomInfo,"SHOW_OUT");
         }else{
@@ -433,6 +451,9 @@ public class WebSocketService {
         roomMap.put(roomId,roomInfo);
         if(roomInfoService.isEveryone(roomInfo,"hide")){
             roomInfo = roomInfoService.calculateScore(roomInfo);
+            for(Player player:roomInfo.getPlayers()){
+                player.setState("BOTH_HIDE_END");
+            }
 //            roomInfo = roomInfoService.award(roomInfo);
             roomMap.put(roomId,roomInfo);
             sendMessage(roomInfo,"HIDE_OUT");
@@ -459,7 +480,9 @@ public class WebSocketService {
         RoomInfo roomInfo = roomMap.get(roomId);
         Result result = roomInfoService.playerSelectContinue(roomInfo,Integer.parseInt(uid));
         if(result.getMsg().equalsIgnoreCase("success")){
-            roomMap.put(roomId, (RoomInfo) result.getData());
+            roomInfo = (RoomInfo) result.getData();
+            roomMap.put(roomId, roomInfo);
+            sendMessage(roomInfo,"REFRESH");
         }else{
             JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(result.getMsg(),"CONTINUE_ALERT"));
             sendMessage(Integer.parseInt(uid),jsonObject.toString());
@@ -621,8 +644,8 @@ public class WebSocketService {
             RoomInfo roomInfo = roomMap.get(roomId);
             for(Player player:roomInfo.getPlayers()){
                 if(player.getUser().getUid() == uid){
-                    player.setState("OFFLINE");
-                }else if(player.getUser().getUid() != uid && !player.getState().equalsIgnoreCase("OFFLINE")){
+                    player.setOffLine(true);
+                }else if(player.getUser().getUid() != uid && !player.isOffLine()){
                     JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,"OFFLINE"));
                     sendMessage(player.getUser().getUid(),jsonObject.toString());
                     System.out.println("jsonObject.toString()"+jsonObject.toString());
