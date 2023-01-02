@@ -150,6 +150,16 @@ public class WebSocketService {
     public void onClose() {
         if(webSocketMap.containsKey(uid)) {
 //
+            // 当玩家断开socket且没有退出房间时变更offline=true
+            RoomInfo roomInfo = roomMap.get(roomId);
+            if(roomInfo != null){
+                for(Player player:roomInfo.getPlayers()){
+                    if(player.getUser().getUid() == Integer.parseInt(uid)){
+                        player.setOffLine(true);
+                        break;
+                    }
+                }
+            }
             if (webSocketMap.size() > 0) {
                 //从set中删除
                 subOnlineCount();
@@ -666,13 +676,20 @@ public class WebSocketService {
             e.printStackTrace();
             RoomInfo roomInfo = roomMap.get(roomId);
             if(roomInfo != null){
+                // 先更新掉线玩家的状态
                 for(Player player:roomInfo.getPlayers()){
                     if(player.getUser().getUid() == uid){
                         player.setOffLine(true);
-                    }else if(player.getUser().getUid() != uid && !player.isOffLine()){
+                        break;
+                    }
+                }
+                // 再把更新后的状态发给未掉线的玩家
+                for(Player player:roomInfo.getPlayers()){
+                    if(player.getUser().getUid() != uid && !player.isOffLine()){
                         JSONObject jsonObject = (JSONObject) JSONObject.toJSON(Result.success(roomInfo,"OFFLINE"));
                         sendMessage(player.getUser().getUid(),jsonObject.toString());
                         System.out.println("jsonObject.toString()"+jsonObject.toString());
+                        break;
                     }
                 }
             }
