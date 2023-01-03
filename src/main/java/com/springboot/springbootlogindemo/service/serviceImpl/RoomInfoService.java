@@ -384,7 +384,7 @@ public class RoomInfoService {
         for(Player player:roomInfo.getPlayers()){
             if(player.getUser().getUid() == uid){
                 HashMap<String,List<Card>> idleCardMap = player.getIdleCardMap();
-                if(getMapSize(idleCardMap) < 4){
+                if(idleCardMap.get("ant").size() < 4){
                     return Result.error("101","玩家拥有的蚂蚁数量不够参与对战，请获取新的蚂蚁");
                 }else{
                     player.setState("CONTINUE");
