@@ -166,6 +166,10 @@ public class RoomInfoService {
                     player.setIdleCardMap(addCard(idleCardMap,card));
                     player.setRice(player.getRice()-buyAntCost);
 
+                    if(player.getRice()/50 + idleCardMap.get("ant").size() <4){
+                        player.setBankruptcy(true);
+                        return Result.success(roomInfo,"bankruptcy");
+                    }
                 }
             }
             players.add(player);
@@ -438,7 +442,7 @@ public class RoomInfoService {
                 player.setBankruptcy(true);
                 flag = true;
             }
-            else if(player.getRice()/50 + getMapSize(idleCardMap) <4){
+            else if(player.getRice()/50 + idleCardMap.get("ant").size() <4){
                 player.setBankruptcy(true);
                 flag = true;
             }

@@ -456,6 +456,18 @@ public class WebSocketService {
             roomMap.put(roomId, (RoomInfo) result.getData());
             roomInfo = roomMap.get(roomId);
             sendMessage(roomInfo,"REFRESH");
+        }else if(result.getMsg().equalsIgnoreCase("bankruptcy")){
+            roomMap.put(roomId, (RoomInfo) result.getData());
+            roomInfo = roomMap.get(roomId);
+
+            for(Player player:roomInfo.getPlayers()){
+                player.setState("UNREADY");
+            }
+            Room room = roomList.get(roomId);
+            room.setStatus(0);
+            roomList.put(roomId,room);
+            sendMessage(roomInfo,"GAME_OVER");
+
         }else{
             sendMessage(uid,result.getMsg(),"ALERT");
         }
