@@ -543,10 +543,10 @@ public class WebSocketService {
 
     //换环境牌
     public void changeEnv(String[] instructions){
-        String[] evn = instructions[1].split("@");
-        if(evn[0].equalsIgnoreCase("evn")){
+        String[] env = instructions[1].split("@");
+        if(env[0].equalsIgnoreCase("env")){
             List<Integer> infos = new ArrayList<>();
-            infos.add(Integer.parseInt(evn[1]));
+            infos.add(Integer.parseInt(env[1]));
             infos.add(Integer.parseInt(instructions[2]));
             RoomInfo roomInfo = roomMap.get(roomId);
             roomInfo = roomInfoService.changeEnv(roomInfo,Integer.parseInt(uid),infos);
@@ -599,7 +599,7 @@ public class WebSocketService {
                 case "QUIT":
                     quit();
                     break;
-                case "CHANGE_EVN":
+                case "CHANGE_ENV":
                     changeEnv(instructions);
                     break;
             }
