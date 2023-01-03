@@ -298,7 +298,7 @@ public class RoomInfoService {
                     player.setRice(player.getRice()-deficitRice);
                     player.setChangeRice(0-deficitRice);
                 }
-                player.setScore(0);
+//                player.setScore(0);
                 players.add(player);
             }
             roomInfo.setPlayers(players);
