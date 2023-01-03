@@ -403,13 +403,21 @@ public class WebSocketService {
             RoomInfo roomInfo = roomMap.get(roomId);
             roomInfo = roomInfoService.showTwoCards(roomInfo,Integer.parseInt(uid),seq,type);
             roomMap.put(roomId,roomInfo);
-            if(roomInfoService.isEveryone(roomInfo,"show")){
+            if(roomInfoService.isEveryone(roomInfo,type)){
                 roomInfo = roomInfoService.calculateScore(roomInfo);
-                for(Player player:roomInfo.getPlayers()){
-                    player.setState("HIDE_START");
+                if(type.equalsIgnoreCase("show")){
+                    for(Player player:roomInfo.getPlayers()){
+                        player.setState("HIDE_START");
+                    }
+                    roomMap.put(roomId,roomInfo);
+                    sendMessage(roomInfo,"SHOW_OUT");
+                }else if(type.equalsIgnoreCase("hide")){
+                    for(Player player:roomInfo.getPlayers()){
+                        player.setState("BOTH_HIDE_END");
+                    }
+                    roomMap.put(roomId,roomInfo);
+                    sendMessage(roomInfo,"HIDE_OUT");
                 }
-                roomMap.put(roomId,roomInfo);
-                sendMessage(roomInfo,"SHOW_OUT");
             }else{
                 sendMessage(roomInfo,"REFRESH");
             }
@@ -533,6 +541,24 @@ public class WebSocketService {
         sendMessage(roomInfo,"REFRESH");
     }
 
+    //换环境牌
+    public void changeEnv(String[] instructions){
+        String[] evn = instructions[1].split("@");
+        if(evn[0].equalsIgnoreCase("evn")){
+            List<Integer> infos = new ArrayList<>();
+            infos.add(Integer.parseInt(evn[1]));
+            infos.add(Integer.parseInt(instructions[2]));
+            RoomInfo roomInfo = roomMap.get(roomId);
+            roomInfo = roomInfoService.changeEnv(roomInfo,Integer.parseInt(uid),infos);
+            //重新计算分数
+            roomInfo = roomInfoService.calculateScore(roomInfo);
+            roomMap.put(roomId,roomInfo);
+            sendMessage(roomInfo,"REFRESH");
+        }else{
+            sendMessage(uid,"所出的牌不是环境牌","ALERT");
+        }
+    }
+
     /**
      * 收到客户端消息后调用的方法
      *
@@ -572,6 +598,9 @@ public class WebSocketService {
                     break;
                 case "QUIT":
                     quit();
+                    break;
+                case "CHANGE_EVN":
+                    changeEnv(instructions);
                     break;
             }
         }

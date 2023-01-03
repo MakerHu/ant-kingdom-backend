@@ -477,4 +477,25 @@ public class RoomInfoService {
         return roomInfo;
     }
 
+    //更换环境
+    public RoomInfo changeEnv(RoomInfo roomInfo,int uid,List<Integer> info){
+        for(Player player:roomInfo.getPlayers()){
+            if(player.getUser().getUid() == uid){
+                HashMap<String,List<Card>> idleCardMap = player.getIdleCardMap();
+                List<Card> envList = idleCardMap.get("env");
+                Card card = envList.get(info.get(0));
+                //删除环境手牌，并扣钱
+                envList.remove(card);
+                idleCardMap.put("env",envList);
+                player.setIdleCardMap(idleCardMap);
+                player.setRice(player.getRice()-info.get(1));
+
+                //换环境
+                roomInfo.setEnvironmentCard(card);
+                roomInfo.setEnvironmentRice(info.get(1));
+            }
+        }
+        return roomInfo;
+    }
+
 }
