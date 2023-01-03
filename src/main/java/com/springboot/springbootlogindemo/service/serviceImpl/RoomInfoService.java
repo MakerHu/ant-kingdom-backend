@@ -108,11 +108,21 @@ public class RoomInfoService {
         //发牌
         Stack<Card> cardStack = roomInfo.getCardStack();
         for(Player player:roomInfo.getPlayers()){
-            List<Card> cardList = new ArrayList<>();
+            HashMap<String,List<Card>> idleCardMap = new HashMap<>();
+            List<Card> antList = new ArrayList<>();
+            List<Card> envList = new ArrayList<>();
             for(int i = 0 ;i < 8;i ++){
-                cardList.add(cardStack.pop());
+                Card card = cardStack.pop();
+                //判断牌类型
+                if(card.getType() == 0){
+                    antList.add(card);
+                }else if(card.getType() == 1){
+                    envList.add(card);
+                }
             }
-            player.setIdleCardList(cardList);
+            idleCardMap.put("ant",antList);
+            idleCardMap.put("env",envList);
+            player.setIdleCardMap(idleCardMap);
             player.setRice(1000);
             player.setScore(0);
             player.setShowCardList(new ArrayList<>());
@@ -124,24 +134,36 @@ public class RoomInfoService {
         roomInfo.setCardStack(cardStack);
         return roomInfo;
     }
+
+    public HashMap<String,List<Card>> addCard(HashMap<String,List<Card>> idleCardMap,Card card){
+        if(card.getType() == 0){
+            List<Card> antList = idleCardMap.get("ant");
+            antList.add(card);
+            idleCardMap.put("ant",antList);
+        }else if(card.getType() == 1){
+            List<Card> envList = idleCardMap.get("env");
+            envList.add(card);
+            idleCardMap.put("env",envList);
+        }
+        return idleCardMap;
+    }
     //抽一张牌
     public Result<RoomInfo> brand(RoomInfo roomInfo, int uid){
         int buyAntCost = 50;
         List<Player> players = new ArrayList<>();
         for(Player player:roomInfo.getPlayers()){
             if(player.getUser().getUid() == uid){
+                HashMap<String,List<Card>> idleCardMap = player.getIdleCardMap();
                 if(player.getRice() < buyAntCost){
                     return Result.error("101","食物不够获得新的蚂蚁");
-                }else if(player.getIdleCardList().size() == 8){
+                }else if(getMapSize(idleCardMap) == 8){
                     return Result.error("101","蚂蚁上限不能超过8只");
-                } else if(player.getRice() >= buyAntCost && player.getIdleCardList().size()<8){
+                } else if(player.getRice() >= buyAntCost && getMapSize(idleCardMap)<8){
                     Stack<Card> cardStack = roomInfo.getCardStack();
                     Card card = cardStack.pop();
                     roomInfo.setCardStack(cardStack);
 
-                    List<Card> idleCardList = player.getIdleCardList();
-                    idleCardList.add(card);
-                    player.setIdleCardList(idleCardList);
+                    player.setIdleCardMap(addCard(idleCardMap,card));
                     player.setRice(player.getRice()-buyAntCost);
 
                 }
@@ -151,22 +173,35 @@ public class RoomInfoService {
         roomInfo.setPlayers(players);
         return Result.success(roomInfo,"success");
     }
+
     //出两张明牌
-    public RoomInfo showTwoCards(RoomInfo roomInfo,int uid,List<Integer> seq ){
+    public RoomInfo showTwoCards(RoomInfo roomInfo,int uid,List<Integer> seq,String type){
         List<Player> players = new ArrayList<>();
         for(Player player:roomInfo.getPlayers()){
             if(player.getUser().getUid() == uid){
-                List<Card> idleCardList = player.getIdleCardList();
-                List<Card> showCardList = new ArrayList<>();
-                Card card1 = idleCardList.get(seq.get(0));
-                Card card2 = idleCardList.get(seq.get(1));
-                idleCardList.remove(card1);
-                idleCardList.remove(card2);
-                showCardList.add(card1);
-                showCardList.add(card2);
-                player.setIdleCardList(idleCardList);
-                player.setShowCardList(showCardList);
-                player.setState("SHOW_END");
+                HashMap<String,List<Card>> idleCardMap = player.getIdleCardMap();
+                List<Card> antList = idleCardMap.get("ant");
+                Card card1 = antList.get(seq.get(0));
+                Card card2 = antList.get(seq.get(1));
+                antList.remove(card1);
+                antList.remove(card2);
+                idleCardMap.put("ant",antList);
+                player.setIdleCardMap(idleCardMap);
+
+                if(type.equalsIgnoreCase("show")){
+                    List<Card> showCardList = new ArrayList<>();
+                    showCardList.add(card1);
+                    showCardList.add(card2);
+                    player.setShowCardList(showCardList);
+                    player.setState("SHOW_END");
+                }else if(type.equalsIgnoreCase("hide")){
+                    List<Card> hideCardList = new ArrayList<>();
+                    hideCardList.add(card1);
+                    hideCardList.add(card2);
+                    player.setHideCardList(hideCardList);
+                    player.setState("HIDE_END");
+                }
+
             }
             players.add(player);
         }
@@ -175,27 +210,31 @@ public class RoomInfoService {
     }
 
     //出两张明牌
-    public RoomInfo hideTwoCards(RoomInfo roomInfo,int uid,List<Integer> seq ){
-        List<Player> players = new ArrayList<>();
-        for(Player player:roomInfo.getPlayers()){
-            if(player.getUser().getUid() == uid){
-                List<Card> idleCardList = player.getIdleCardList();
-                List<Card> hideCardList = new ArrayList<>();
-                Card card1 = idleCardList.get(seq.get(0));
-                Card card2 = idleCardList.get(seq.get(1));
-                idleCardList.remove(card1);
-                idleCardList.remove(card2);
-                hideCardList.add(card1);
-                hideCardList.add(card2);
-                player.setIdleCardList(idleCardList);
-                player.setHideCardList(hideCardList);
-                player.setState("HIDE_END");
-            }
-            players.add(player);
-        }
-        roomInfo.setPlayers(players);
-        return roomInfo;
-    }
+//    public RoomInfo hideTwoCards(RoomInfo roomInfo,int uid,List<Integer> seq ){
+//        List<Player> players = new ArrayList<>();
+//        for(Player player:roomInfo.getPlayers()){
+//            if(player.getUser().getUid() == uid){
+//                HashMap<String,List<Card>> idleCardMap = player.getIdleCardMap();
+//                List<Card> antList = idleCardMap.get("ant");
+//                Card card1 = antList.get(seq.get(0));
+//                Card card2 = antList.get(seq.get(1));
+//                antList.remove(card1);
+//                antList.remove(card2);
+//                idleCardMap.put("ant",antList);
+//                player.setIdleCardMap(idleCardMap);
+//
+//
+//                List<Card> hideCardList = new ArrayList<>();
+//                hideCardList.add(card1);
+//                hideCardList.add(card2);
+//                player.setHideCardList(hideCardList);
+//                player.setState("HIDE_END");
+//            }
+//            players.add(player);
+//        }
+//        roomInfo.setPlayers(players);
+//        return roomInfo;
+//    }
 
     //判断是否所有人出牌
     public Boolean isEveryone(RoomInfo roomInfo,String type){
@@ -329,12 +368,23 @@ public class RoomInfoService {
         return true;
     }
 
+    //获取手牌数量
+    public int getMapSize(HashMap<String,List<Card>> idleCardMap){
+        int size = 0;
+        //获取手牌总数量
+        for(String key : idleCardMap.keySet()){
+            size += idleCardMap.get(key).size();
+        }
+        return size;
+    }
+
     //玩家选择继续
     public Result<RoomInfo> playerSelectContinue(RoomInfo roomInfo,int uid){
         List<Player> players = new ArrayList<>();
         for(Player player:roomInfo.getPlayers()){
             if(player.getUser().getUid() == uid){
-                if(player.getIdleCardList().size() < 4){
+                HashMap<String,List<Card>> idleCardMap = player.getIdleCardMap();
+                if(getMapSize(idleCardMap) < 4){
                     return Result.error("101","玩家拥有的蚂蚁数量不够参与对战，请获取新的蚂蚁");
                 }else{
                     player.setState("CONTINUE");
@@ -383,11 +433,12 @@ public class RoomInfoService {
         List<Player> players = new ArrayList<>();
         Boolean flag = false;
         for(Player player:roomInfo.getPlayers()){
+            HashMap<String,List<Card>> idleCardMap = player.getIdleCardMap();
             if(player.getRice()<0){
                 player.setBankruptcy(true);
                 flag = true;
             }
-            else if(player.getRice()/50 + player.getIdleCardList().size() <4){
+            else if(player.getRice()/50 + getMapSize(idleCardMap) <4){
                 player.setBankruptcy(true);
                 flag = true;
             }

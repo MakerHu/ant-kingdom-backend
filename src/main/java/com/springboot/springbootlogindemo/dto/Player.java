@@ -3,12 +3,13 @@ package com.springboot.springbootlogindemo.dto;
 import com.springboot.springbootlogindemo.domain.Card;
 import com.springboot.springbootlogindemo.domain.User;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class Player {
     private User user;
     private String state;
-    private List<Card> idleCardList; //手中的空闲牌
+    private HashMap<String,List<Card>> idleCardMap; //手中的空闲牌
     private List<Card> showCardList; //亮出的牌
     private List<Card> hideCardList; //翻面的牌
     private int rice;
@@ -18,20 +19,20 @@ public class Player {
     private boolean bankruptcy; //是否破产
     private boolean isOffLine;
 
+    public HashMap<String, List<Card>> getIdleCardMap() {
+        return idleCardMap;
+    }
+
+    public void setIdleCardMap(HashMap<String, List<Card>> idleCardMap) {
+        this.idleCardMap = idleCardMap;
+    }
+
     public User getUser() {
         return user;
     }
 
     public void setUser(User user) {
         this.user = user;
-    }
-
-    public List<Card> getIdleCardList() {
-        return idleCardList;
-    }
-
-    public void setIdleCardList(List<Card> idleCardList) {
-        this.idleCardList = idleCardList;
     }
 
     public List<Card> getShowCardList() {

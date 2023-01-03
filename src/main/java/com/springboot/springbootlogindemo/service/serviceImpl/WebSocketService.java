@@ -1,6 +1,7 @@
 package com.springboot.springbootlogindemo.service.serviceImpl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.springboot.springbootlogindemo.domain.Card;
 import com.springboot.springbootlogindemo.dto.Room;
 import com.springboot.springbootlogindemo.dto.Player;
 import com.springboot.springbootlogindemo.dto.RoomInfo;
@@ -17,10 +18,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Stack;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 @ServerEndpoint(value = "/websocket/{uid}")
@@ -160,69 +158,6 @@ public class WebSocketService {
                 subOnlineCount();
             }
         }
-//            webSocketMap.remove(uid);
-//            RoomInfo roomInfo = roomMap.get(roomId);
-//            if(roomInfo != null){
-//                List<Player> players = roomInfo.getPlayers();
-//                for(Player player:players){
-//                    if(player.getUser().getUid() == Integer.parseInt(uid)){
-//                        players.remove(player);
-//                    }
-//                }
-//                roomInfo.setPlayers(players);
-//                roomMap.put(roomId,roomInfo);
-//                sendMessage(roomInfo,"REFRESH");
-//
-//                //减少当前房间的人数
-//                Room room = roomList.get(roomId);
-//                room.setPeopleNum(room.getPeopleNum()-1);
-//                roomList.put(roomId,room);
-//
-//
-//
-//                //若当前房间人数为0则修改房间状态 在内存中删除该房间信息
-//                if(room.getPeopleNum() == 0){
-//                    room.setStatus(2);
-//                    roomList.remove(roomId);
-//                    roomMap.remove(roomId);
-//                }
-//                //如果游戏还未开始或者刚结束，清空手牌
-//                if(room.getStatus() == 0){
-//                    for(Player player:roomInfo.getPlayers()){
-//                        player.setIdleCardList(new ArrayList<>());
-//                        player.setShowCardList(new ArrayList<>());
-//                        player.setHideCardList(new ArrayList<>());
-//                        player.setScore(0);
-//                        player.setRice(0);
-//                        player.setBankruptcy(false);
-//                    }
-//                    roomInfo.setCardStack(new Stack<>());
-//                    roomInfo.setEnvironmentCard(null);
-//                    roomInfo.setEnvironmentRice(0);
-//                    roomMap.put(roomId,roomInfo);
-//                    sendMessage(roomInfo,"REFRESH");
-//                }
-//                //如果正在游戏，玩家退出，直接结束
-//                if(room.getStatus() == 1){
-//                    for(Player player:roomInfo.getPlayers()){
-//                        player.setIdleCardList(new ArrayList<>());
-//                        player.setShowCardList(new ArrayList<>());
-//                        player.setHideCardList(new ArrayList<>());
-//                        player.setBankruptcy(false);
-//                        player.setState("UNREADY");
-//                    }
-//                    roomInfo.setCardStack(new Stack<>());
-//                    roomInfo.setEnvironmentCard(null);
-//                    roomInfo.setEnvironmentRice(0);
-//                    roomMap.put(roomId,roomInfo);
-//                    sendMessage(roomInfo,"ENEMY_QUIT");
-//
-//                    room.setStatus(0);
-//                    roomList.put(roomId,room);
-//                }
-//            }
-//
-//        }
         log.info("----------------------------------------------------------------------------");
         log.info(uid+"用户退出,当前在线人数为:" + getOnlineCount());
     }
@@ -272,7 +207,10 @@ public class WebSocketService {
                 //如果游戏还未开始或者刚结束，清空手牌
                 if(room.getStatus() == 0){
                     for(Player player:roomInfo.getPlayers()){
-                        player.setIdleCardList(new ArrayList<>());
+                        HashMap<String,List<Card>> idleCardMap = new HashMap<>();
+                        idleCardMap.put("ant",new ArrayList<Card>());
+                        idleCardMap.put("env",new ArrayList<Card>());
+                        player.setIdleCardMap(idleCardMap);
                         player.setShowCardList(new ArrayList<>());
                         player.setHideCardList(new ArrayList<>());
                         player.setScore(0);
@@ -288,7 +226,10 @@ public class WebSocketService {
                 //如果正在游戏，玩家退出，直接结束
                 if(room.getStatus() == 1){
                     for(Player player:roomInfo.getPlayers()){
-                        player.setIdleCardList(new ArrayList<>());
+                        HashMap<String,List<Card>> idleCardMap = new HashMap<>();
+                        idleCardMap.put("ant",new ArrayList<Card>());
+                        idleCardMap.put("env",new ArrayList<Card>());
+                        player.setIdleCardMap(idleCardMap);
                         player.setShowCardList(new ArrayList<>());
                         player.setHideCardList(new ArrayList<>());
                         player.setBankruptcy(false);
@@ -452,46 +393,53 @@ public class WebSocketService {
     }
 
     //亮两张牌
-    public void showTwoCards(String[] instructions){
-        List<Integer> seq = new ArrayList<>();
-        seq.add(Integer.parseInt(instructions[1]));
-        seq.add(Integer.parseInt(instructions[2]));
-        RoomInfo roomInfo = roomMap.get(roomId);
-        roomInfo = roomInfoService.showTwoCards(roomInfo,Integer.parseInt(uid),seq);
-        roomMap.put(roomId,roomInfo);
-        if(roomInfoService.isEveryone(roomInfo,"show")){
-            roomInfo = roomInfoService.calculateScore(roomInfo);
-            for(Player player:roomInfo.getPlayers()){
-                player.setState("HIDE_START");
-            }
+    public void showTwoCards(String[] instructions,String type){
+        String[] show1 = instructions[1].split("@");
+        String[] show2 = instructions[2].split("@");
+        if(show1[0].equalsIgnoreCase("ant") && show2[0].equalsIgnoreCase("ant")){
+            List<Integer> seq = new ArrayList<>();
+            seq.add(Integer.parseInt(show1[1]));
+            seq.add(Integer.parseInt(show2[1]));
+            RoomInfo roomInfo = roomMap.get(roomId);
+            roomInfo = roomInfoService.showTwoCards(roomInfo,Integer.parseInt(uid),seq,type);
             roomMap.put(roomId,roomInfo);
-            sendMessage(roomInfo,"SHOW_OUT");
+            if(roomInfoService.isEveryone(roomInfo,"show")){
+                roomInfo = roomInfoService.calculateScore(roomInfo);
+                for(Player player:roomInfo.getPlayers()){
+                    player.setState("HIDE_START");
+                }
+                roomMap.put(roomId,roomInfo);
+                sendMessage(roomInfo,"SHOW_OUT");
+            }else{
+                sendMessage(roomInfo,"REFRESH");
+            }
         }else{
-            sendMessage(roomInfo,"REFRESH");
+            sendMessage(uid,"所出的牌不全为蚂蚁牌","ALERT");
         }
+
 
 
     }
     //亮两张牌
-    public void hideTwoCards(String[] instructions){
-        List<Integer> seq = new ArrayList<>();
-        seq.add(Integer.parseInt(instructions[1]));
-        seq.add(Integer.parseInt(instructions[2]));
-        RoomInfo roomInfo = roomMap.get(roomId);
-        roomInfo = roomInfoService.hideTwoCards(roomInfo,Integer.parseInt(uid),seq);
-        roomMap.put(roomId,roomInfo);
-        if(roomInfoService.isEveryone(roomInfo,"hide")){
-            roomInfo = roomInfoService.calculateScore(roomInfo);
-            for(Player player:roomInfo.getPlayers()){
-                player.setState("BOTH_HIDE_END");
-            }
-//            roomInfo = roomInfoService.award(roomInfo);
-            roomMap.put(roomId,roomInfo);
-            sendMessage(roomInfo,"HIDE_OUT");
-        }else{
-            sendMessage(roomInfo,"REFRESH");
-        }
-    }
+//    public void hideTwoCards(String[] instructions){
+//        List<Integer> seq = new ArrayList<>();
+//        seq.add(Integer.parseInt(instructions[1]));
+//        seq.add(Integer.parseInt(instructions[2]));
+//        RoomInfo roomInfo = roomMap.get(roomId);
+//        roomInfo = roomInfoService.hideTwoCards(roomInfo,Integer.parseInt(uid),seq);
+//        roomMap.put(roomId,roomInfo);
+//        if(roomInfoService.isEveryone(roomInfo,"hide")){
+//            roomInfo = roomInfoService.calculateScore(roomInfo);
+//            for(Player player:roomInfo.getPlayers()){
+//                player.setState("BOTH_HIDE_END");
+//            }
+////            roomInfo = roomInfoService.award(roomInfo);
+//            roomMap.put(roomId,roomInfo);
+//            sendMessage(roomInfo,"HIDE_OUT");
+//        }else{
+//            sendMessage(roomInfo,"REFRESH");
+//        }
+//    }
     //抽牌
     public void brand(){
         RoomInfo roomInfo = roomMap.get(roomId);
@@ -607,10 +555,11 @@ public class WebSocketService {
                     cancelReady();
                     break;
                 case "SHOW":   //玩家亮两张牌
-                    showTwoCards(instructions);
+                    showTwoCards(instructions,"show");
                     break;
                 case "HIDE":  //玩家隐藏两张牌
-                    hideTwoCards(instructions);
+//                    hideTwoCards(instructions);
+                    showTwoCards(instructions,"hide");
                     break;
                 case "END":
                     end();
