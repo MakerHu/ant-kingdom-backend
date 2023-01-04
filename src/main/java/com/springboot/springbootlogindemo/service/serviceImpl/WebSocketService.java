@@ -557,15 +557,29 @@ public class WebSocketService {
     public void changeEnv(String[] instructions){
         String[] env = instructions[1].split("@");
         if(env[0].equalsIgnoreCase("env")){
-            List<Integer> infos = new ArrayList<>();
-            infos.add(Integer.parseInt(env[1]));
-            infos.add(Integer.parseInt(instructions[2]));
             RoomInfo roomInfo = roomMap.get(roomId);
-            roomInfo = roomInfoService.changeEnv(roomInfo,Integer.parseInt(uid),infos);
-            //重新计算分数
-            roomInfo = roomInfoService.calculateScore(roomInfo);
-            roomMap.put(roomId,roomInfo);
-            sendMessage(roomInfo,"REFRESH");
+            if(Integer.parseInt(instructions[2]) < roomInfo.getEnvironmentRice()){
+                sendMessage(uid,"所支付的粮食数量少于当前价格","ALERT");
+            }else{
+                for(Player player:roomInfo.getPlayers()){
+                    if(player.getUser().getUid() == Integer.parseInt(uid)){
+                        if(Integer.parseInt(instructions[2]) > player.getRice()){
+                            sendMessage(uid,"所支付的粮食数量超出当前您拥有的数量","ALERT");
+                        }else{
+                            List<Integer> infos = new ArrayList<>();
+                            infos.add(Integer.parseInt(env[1]));
+                            infos.add(Integer.parseInt(instructions[2]));
+
+                            roomInfo = roomInfoService.changeEnv(roomInfo,Integer.parseInt(uid),infos);
+                            //重新计算分数
+                            roomInfo = roomInfoService.calculateScore(roomInfo);
+                            roomMap.put(roomId,roomInfo);
+                            sendMessage(roomInfo,"REFRESH");
+                        }
+                        break;
+                    }
+                }
+            }
         }else{
             sendMessage(uid,"所出的牌不是环境牌","ALERT");
         }
