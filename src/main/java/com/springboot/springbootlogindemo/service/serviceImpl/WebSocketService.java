@@ -574,7 +574,7 @@ public class WebSocketService {
                             //重新计算分数
                             roomInfo = roomInfoService.calculateScore(roomInfo);
                             roomMap.put(roomId,roomInfo);
-                            sendMessage(roomInfo,"REFRESH");
+                            sendMessage(roomInfo,"CHANGE_ENV");
                         }
                         break;
                     }
