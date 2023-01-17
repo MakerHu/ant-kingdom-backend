@@ -42,52 +42,39 @@ SET FOREIGN_KEY_CHECKS = 0;
 -- ----------------------------
 DROP TABLE IF EXISTS `card`;
 CREATE TABLE `card`  (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `type` int NOT NULL COMMENT '0:蚂蚁牌;1:环境牌',
-  `init_value` int NOT NULL,
-  `rice` int NOT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 7 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+                         `id` int NOT NULL AUTO_INCREMENT,
+                         `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                         `type` int NOT NULL COMMENT '0:蚂蚁牌;1:环境牌',
+                         `init_value` int NOT NULL,
+                         `rice` int NOT NULL,
+                         PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for card_relation
 -- ----------------------------
 DROP TABLE IF EXISTS `card_relation`;
 CREATE TABLE `card_relation`  (
-  `id` int NOT NULL AUTO_INCREMENT,
-  `card1` int NOT NULL,
-  `card2` int NOT NULL,
-  `value_impact` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 8 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
-
--- ----------------------------
--- Table structure for room
--- ----------------------------
-DROP TABLE IF EXISTS `room`;
-CREATE TABLE `room`  (
-  `id` varchar(6) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `people_num` int NOT NULL,
-  `status` int NOT NULL COMMENT '0:未开始;1:正在进行;3:已结束',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+                                  `id` int NOT NULL AUTO_INCREMENT,
+                                  `card1` int NOT NULL,
+                                  `card2` int NOT NULL,
+                                  `value_impact` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                                  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 45 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
 -- Table structure for user
 -- ----------------------------
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE `user`  (
-  `uid` int NOT NULL AUTO_INCREMENT,
-  `uname` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  `password` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
-  PRIMARY KEY (`uid`) USING BTREE,
-  UNIQUE INDEX `uname`(`uname`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 9 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+                         `uid` int NOT NULL AUTO_INCREMENT,
+                         `uname` varchar(30) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                         `password` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
+                         PRIMARY KEY (`uid`) USING BTREE,
+                         UNIQUE INDEX `uname`(`uname`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 SET FOREIGN_KEY_CHECKS = 1;
-
 ```
 
 ### 数据
